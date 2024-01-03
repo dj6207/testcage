@@ -1,4 +1,5 @@
 use tauri::{
+    command,
     plugin::{
         Builder, 
         TauriPlugin
@@ -19,6 +20,16 @@ use sqlx::{
 use std::str::FromStr;
 
 const DATABASE_URL:&str = "sqlite:testcage.db";
+
+#[command]
+async fn add_test_sample() {
+    
+}
+
+#[command]
+async fn add_test_fixture() {
+
+}
 
 pub async fn initialize_sqlite_database() -> Result<Pool<Sqlite>, SqlxError>{
     let connect_options = SqliteConnectOptions::from_str(DATABASE_URL)?

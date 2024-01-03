@@ -2,19 +2,19 @@ export type TestSample = {
     id?: number;
     name: string;
     quantity: number;
-    model: string;
+    model?: string;
     serialNumber: number;
-    projectAssociation: string;
-    productEquivalence: string;
-    misc: string;
+    projectAssociation?: string;
+    productEquivalence?: string;
+    misc?: string;
 }
 
 export type TestFixture = {
     id?: number;
     name: string;
     quantity: number;
-    projectAssociation: string;
-    misc: string;
+    projectAssociation?: string;
+    misc?: string;
 }
 
 export type RouteItem = {

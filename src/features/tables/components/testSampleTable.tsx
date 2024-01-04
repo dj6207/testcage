@@ -8,15 +8,12 @@ import {
     TableRow, 
     TextField
 } from "@mui/material";
-import React, { useState } from "react";
+import React from "react";
 import { TestSample } from "../../../types";
 import { useGetAllTestSamples } from "../../../hooks";
 
 export const TestSampleTable: React.FC = () => {
-    // const [testSamples, setTestSamples] = useState<TestSample[]>([])
     const testSamples:TestSample[] = useGetAllTestSamples();
-    console.log(testSamples)
-    console.log("render")
     return (
         <TableContainer component={Paper}>
             <Table>

@@ -8,14 +8,12 @@ import {
     TableRow, 
     TextField
 } from "@mui/material";
-import React, { useState } from "react";
+import React from "react";
 import { TestFixture } from "../../../types";
 import { useGetAllTestFixtures } from "../../../hooks";
 
 export const TestFixtureTable: React.FC = () => {
-    // const [testFixtures, setTestFixtures] = useState<TestFixture[]>([])
-    const testFixtures:TestFixture[] = useGetAllTestFixtures(); 
-    console.log("render")
+    const testFixtures:TestFixture[] = useGetAllTestFixtures();
     return (
         <TableContainer component={Paper}>
             <Table>

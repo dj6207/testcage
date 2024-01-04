@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { AddItemForm, TestFixtureTable, TestSampleTable } from "../features";
 import { Button, Dialog, Paper } from "@mui/material";
+import { TestFixture } from "../types";
 
 export const TablePage: React.FC = () => {
     const [openAddItemDialog, setOpenAddItemDialog] = useState<boolean>(false);

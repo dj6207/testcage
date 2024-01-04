@@ -3,7 +3,6 @@ import { Snackbar } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../../hooks";
 import { AppDispatch, RootState } from "../../../store";
 import { hideSnackBar } from "../../../slices/snackBarSlice";
-import { bottom } from "@popperjs/core";
 
 
 export const GlobalSnackBar: React.FC = () => {

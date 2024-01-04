@@ -10,9 +10,11 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import { TestFixture } from "../../../types";
+import { useGetAllTestFixtures } from "../../../hooks";
 
 export const TestFixtureTable: React.FC = () => {
-    const [testFixtures, setTestFixtures] = useState<TestFixture[]>([])
+    // const [testFixtures, setTestFixtures] = useState<TestFixture[]>([])
+    const testFixtures:TestFixture[] = useGetAllTestFixtures(); 
     console.log("render")
     return (
         <TableContainer component={Paper}>
@@ -27,17 +29,12 @@ export const TestFixtureTable: React.FC = () => {
                 </TableHead>
                 <TableBody>
                     {testFixtures.map((testFixture) => (
-                        <>
-                            {testFixture.id !== undefined && (
-                                <TableRow key={testFixture.id}>
-                                    {Object.entries(testFixture).map(([key, value]) => (
-                                        <TableCell key={key}>
-                                            {value}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            )}
-                        </>
+                        <TableRow key={testFixture.id}>
+                            <TableCell>{testFixture.name}</TableCell>    
+                            <TableCell>{testFixture.quantity}</TableCell>   
+                            <TableCell>{testFixture.projectAssociation}</TableCell>   
+                            <TableCell>{testFixture.misc}</TableCell>                                   
+                        </TableRow>
                     ))}
                 </TableBody>
             </Table>

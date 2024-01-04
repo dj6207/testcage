@@ -10,9 +10,12 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import { TestSample } from "../../../types";
+import { useGetAllTestSamples } from "../../../hooks";
 
 export const TestSampleTable: React.FC = () => {
-    const [testSamples, setTestSamples] = useState<TestSample[]>([])
+    // const [testSamples, setTestSamples] = useState<TestSample[]>([])
+    const testSamples:TestSample[] = useGetAllTestSamples();
+    console.log(testSamples)
     console.log("render")
     return (
         <TableContainer component={Paper}>
@@ -30,17 +33,15 @@ export const TestSampleTable: React.FC = () => {
                 </TableHead>
                 <TableBody>
                     {testSamples.map((testSample) => (
-                        <>
-                            {testSample.id !== undefined && (
-                                <TableRow key={testSample.id}>
-                                    {Object.entries(testSample).map(([key, value]) => (
-                                        <TableCell key={key}>
-                                            {value}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            )}
-                        </>
+                        <TableRow key={testSample.id}>
+                            <TableCell>{testSample.name}</TableCell>    
+                            <TableCell>{testSample.quantity}</TableCell>   
+                            <TableCell>{testSample.model}</TableCell> 
+                            <TableCell>{testSample.serialNumber}</TableCell> 
+                            <TableCell>{testSample.projectAssociation}</TableCell>   
+                            <TableCell>{testSample.productEquivalence}</TableCell> 
+                            <TableCell>{testSample.misc}</TableCell>                                   
+                        </TableRow>
                     ))}
                 </TableBody>
             </Table>

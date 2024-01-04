@@ -7,7 +7,9 @@ pub struct SqlitePoolConnection{
     pub connection: Mutex<Option<Pool<Sqlite>>>
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+use sqlx::FromRow;
+
+#[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct TestSample {
     pub id: Option<i64>,
     pub name: String,
@@ -22,7 +24,7 @@ pub struct TestSample {
     pub misc: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct TestFixture {
     pub id: Option<i64>,
     pub name: String,

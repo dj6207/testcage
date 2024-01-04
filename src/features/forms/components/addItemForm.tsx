@@ -1,24 +1,58 @@
 import { Box, Container, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField, FormLabel, Button } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { TestCageItem } from "../../../enums";
 import { TestFixture, TestSample } from "../../../types";
 import { invoke } from '@tauri-apps/api/tauri'
 
 export const AddItemForm: React.FC = () => {
     const [testCageItemType, setTestCageItemType] = useState<TestCageItem>(TestCageItem.TestSample);
+
     const [inputName, setInputName] = useState<string>("");
     const [inputQuantity, setInputQuantity] = useState<string>("");
     const [inputProjectAssociation, setInputProjectAssociation] = useState<string>("");
     const [inputMisc, setInputMisc] = useState<string>("");
-
     const [inputModel, setInputModel] = useState<string>("");
     const [inputSerialNumber, setInputSerialNumber] = useState<string>("");
     const [inputProductionEquivalence, setInputProductionEquivalence] = useState<string>("");
-    const handleAddItem = () => {
 
+    const handleAddItem = (e:React.FocusEvent<HTMLFormElement>):void => {
+        e.preventDefault();
+        if (testCageItemType === TestCageItem.TestFixture) {
+            const newTestFixture:TestFixture = {
+                name: inputName,
+                quantity: parseInt(inputQuantity) || 1,
+                projectAssociation: inputProjectAssociation,
+                misc: inputMisc,
+            };
+            addTestFixture(newTestFixture);
+        } else {
+            const newTestSample:TestSample = {
+                name: inputName,
+                quantity: parseInt(inputQuantity) || 1,
+                model: inputModel,
+                serialNumber: parseInt(inputSerialNumber) || -1,
+                projectAssociation: inputProjectAssociation,
+                productEquivalence: inputProductionEquivalence,
+                misc: inputMisc,
+            };
+            addTestSample(newTestSample);
+        }
     }
 
-    const handleChangeTestCageItemType = (e: SelectChangeEvent) => {
+    const addTestSample = (sample:TestSample):void => {
+        // Make sure the name of the arg parssed in is the same as the name of the parameter called in the backend
+        invoke<number>("plugin:sqlite_connector|add_test_sample", { sample })
+            .then((res) => console.log(res))
+            .catch((err) => console.log(err));
+    }
+    
+    const addTestFixture = (fixture:TestFixture):void => {
+        invoke<number>("plugin:sqlite_connector|add_test_fixture", { fixture })
+            .then((res) => console.log(res))
+            .catch((err) => console.log(err));
+    }
+
+    const handleChangeTestCageItemType = (e: SelectChangeEvent):void => {
         setTestCageItemType(e.target.value as TestCageItem);
     }
 
@@ -119,24 +153,4 @@ export const AddItemForm: React.FC = () => {
                 </Box>
         </Container>
     );
-}
-
-const addTestSample = (newTestSample:TestSample) => {
-    const [response, setResponse] = useState<boolean>(false);
-    useEffect(() => {
-        invoke<boolean>("plugin::sqlite_connector|add_test_sample", { newTestSample })
-            .then((res) => setResponse(res))
-            .catch((err) => console.log(err));
-    }, []);
-    return response
-}
-
-const addTestFixture = (newTestFixture:TestFixture) => {
-    const [response, setResponse] = useState<boolean>(false);
-    useEffect(() => {
-        invoke<boolean>("plugin::sqlite_connector|add_test_fixture", { newTestFixture })
-            .then((res) => setResponse(res))
-            .catch((err) => console.log(err));
-    }, []);
-    return response
 }

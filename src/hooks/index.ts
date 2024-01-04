@@ -1,15 +1,20 @@
 import { useEffect, useState } from "react"
 import { TestFixture, TestSample } from "../types";
 import { invoke } from "@tauri-apps/api";
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '../store';
+import { setTestSampleData } from "../slices/testSampleTableSlice";
+
+export const useAppDispatch = () => useDispatch<AppDispatch>();
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 export const useGetAllTestSamples = () => {
-    const [testSamples, setTestSamples] = useState<TestSample[]>([]);
+    const dispatch = useAppDispatch()
     useEffect(() => {
         invoke<TestSample[]>("plugin:sqlite_connector|get_all_test_samples")
-            .then((res) => setTestSamples(res))
+            .then((res) => dispatch(setTestSampleData(res)))
             .catch((err) => console.log(err))
     }, []);
-    return testSamples
 }
 
 export const useGetAllTestFixtures = () => {

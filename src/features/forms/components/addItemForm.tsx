@@ -3,8 +3,12 @@ import React, { useState } from "react";
 import { TestCageItem } from "../../../enums";
 import { TestFixture, TestSample } from "../../../types";
 import { invoke } from '@tauri-apps/api/tauri'
+import { useAppDispatch, useGetAllTestSamples } from "../../../hooks";
+import { setTestSampleData } from "../../../slices/testSampleTableSlice";
 
 export const AddItemForm: React.FC = () => {
+    const dispatch = useAppDispatch()
+
     const [testCageItemType, setTestCageItemType] = useState<TestCageItem>(TestCageItem.TestSample);
 
     const [inputName, setInputName] = useState<string>("");
@@ -25,6 +29,7 @@ export const AddItemForm: React.FC = () => {
                 misc: inputMisc,
             };
             addTestFixture(newTestFixture);
+            useGetAllTestSamples();
         } else {
             const newTestSample:TestSample = {
                 name: inputName,
@@ -36,6 +41,7 @@ export const AddItemForm: React.FC = () => {
                 misc: inputMisc,
             };
             addTestSample(newTestSample);
+
         }
     }
 

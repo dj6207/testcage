@@ -17,6 +17,10 @@ export type TestFixture = {
     misc?: string;
 }
 
+export type TestSampleTableState = {
+    data: TestSample[];
+}
+
 export type RouteItem = {
     path: string;
     label: string;

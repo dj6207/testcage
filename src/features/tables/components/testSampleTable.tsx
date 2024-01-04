@@ -10,10 +10,12 @@ import {
 } from "@mui/material";
 import React from "react";
 import { TestSample } from "../../../types";
-import { useGetAllTestSamples } from "../../../hooks";
+import { useAppDispatch, useAppSelector, useGetAllTestSamples } from "../../../hooks";
+import { setTestSampleData } from "../../../slices/testSampleTableSlice";
 
 export const TestSampleTable: React.FC = () => {
-    const testSamples:TestSample[] = useGetAllTestSamples();
+    const testSamples:TestSample[] = useAppSelector((state) => state.testSampleTable.data);
+    useGetAllTestSamples();
     return (
         <TableContainer component={Paper}>
             <Table>

@@ -33,20 +33,20 @@ use crate::types::{
 const DATABASE_URL:&str = "sqlite:testcage.db";
 
 #[command]
-async fn add_test_sample<R: Runtime>(app_handle: AppHandle<R>, pool_state: State<'_, SqlitePoolConnection>, sample: TestSample) -> Result<i64, SerializedError>{
+async fn add_test_sample<R: Runtime>(app_handle: AppHandle<R>, pool_state: State<'_, SqlitePoolConnection>, item: TestSample) -> Result<i64, SerializedError>{
     let pool = pool_state.connection.lock().unwrap().clone().unwrap();
     let query = sqlx::query(
         "
         INSERT INTO TestSamples (Name, Quantity, Model, SerialNumber, ProjectAssociation, ProductionEquivalence, Misc) VALUES (?, ?, ?, ?, ?, ?, ?)
         "
     )
-        .bind(sample.name)
-        .bind(sample.quantity)
-        .bind(sample.model)
-        .bind(sample.serial_number)
-        .bind(sample.project_association)
-        .bind(sample.product_equivalence)
-        .bind(sample.misc)
+        .bind(item.name)
+        .bind(item.quantity)
+        .bind(item.model)
+        .bind(item.serial_number)
+        .bind(item.project_association)
+        .bind(item.product_equivalence)
+        .bind(item.misc)
         .execute(&pool)
         .await?;
     // Sends a message to the frontend to notify that the database is updated and should re-fetch new data
@@ -55,17 +55,17 @@ async fn add_test_sample<R: Runtime>(app_handle: AppHandle<R>, pool_state: State
 }
 
 #[command]
-async fn add_test_fixture<R: Runtime>(app_handle: AppHandle<R>, pool_state: State<'_, SqlitePoolConnection>, fixture: TestFixture) -> Result<i64, SerializedError>{
+async fn add_test_fixture<R: Runtime>(app_handle: AppHandle<R>, pool_state: State<'_, SqlitePoolConnection>, item: TestFixture) -> Result<i64, SerializedError>{
     let pool = pool_state.connection.lock().unwrap().clone().unwrap();
     let query = sqlx::query(
         "
         INSERT INTO TestFixtures (Name, Quantity, ProjectAssociation, Misc) VALUES (?, ?, ?, ?)
         "
     )
-        .bind(fixture.name)
-        .bind(fixture.quantity)
-        .bind(fixture.project_association)
-        .bind(fixture.misc)
+        .bind(item.name)
+        .bind(item.quantity)
+        .bind(item.project_association)
+        .bind(item.misc)
         .execute(&pool)
         .await?;
     app_handle.emit_all("database-update", "").expect("Failed to emit event");
@@ -125,6 +125,36 @@ async fn get_all_test_fixtures(pool_state: State<'_, SqlitePoolConnection>) -> R
     return Ok(test_fixture);
 }
 
+#[command]
+async fn delete_sample_by_id<R: Runtime>(app_handle: AppHandle<R>, pool_state: State<'_, SqlitePoolConnection>, id:i64) -> Result<u64, SerializedError> {
+    let pool = pool_state.connection.lock().unwrap().clone().unwrap();
+    let query = sqlx::query(
+        "
+            DELETE FROM TestSamples WHERE TestSampleID = ?
+        "
+    )
+        .bind(id)
+        .execute(&pool)
+        .await?;
+    app_handle.emit_all("database-update", "").expect("Failed to emit event");
+    return Ok(query.rows_affected());
+}
+
+#[command]
+async fn delete_fixture_by_id<R: Runtime>(app_handle: AppHandle<R>,pool_state: State<'_, SqlitePoolConnection>, id:i64) -> Result<u64, SerializedError> {
+    let pool = pool_state.connection.lock().unwrap().clone().unwrap();
+    let query = sqlx::query(
+        "
+            DELETE FROM TestFixtures WHERE TestFixtureID = ?
+        "
+    )
+        .bind(id)
+        .execute(&pool)
+        .await?;
+    app_handle.emit_all("database-update", "").expect("Failed to emit event");
+    return Ok(query.rows_affected());
+}
+
 pub async fn initialize_sqlite_database() -> Result<Pool<Sqlite>, SqlxError>{
     let connect_options = SqliteConnectOptions::from_str(DATABASE_URL)?
         .create_if_missing(true);
@@ -161,6 +191,8 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             add_test_sample,
             get_all_test_samples,
             get_all_test_fixtures,
+            delete_sample_by_id,
+            delete_fixture_by_id,
         ])
         .build()
 }

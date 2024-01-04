@@ -1,4 +1,11 @@
 import { 
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    IconButton,
     Paper, 
     Table, 
     TableBody, 
@@ -8,30 +15,93 @@ import {
     TableRow, 
     TextField
 } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import { TestFixture } from "../../../types";
-import { useGetAllTestFixtures } from "../../../hooks";
+import { useAppDispatch, useGetAllTestFixtures } from "../../../hooks";
+import { invoke } from "@tauri-apps/api";
+import { showSnackBar } from "../../../slices/snackBarSlice";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export const TestFixtureTable: React.FC = () => {
+    const dispatch = useAppDispatch();
+
+    const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
+    const [selectedRow, setSelectedRow] = useState<number | null>(null);
+
     const testFixtures:TestFixture[] = useGetAllTestFixtures();
+
+    const handleOpenDeleteDialog = (rowId:number | null):void => {
+        setSelectedRow(rowId);
+        setOpenDeleteDialog(true);
+    }
+
+    const handleCloseDeleteDialog = ():void => {
+        setOpenDeleteDialog(false);
+    }
+
+    const handleDeleteItem = ():void => {
+        handleCloseDeleteDialog();
+        if (selectedRow != null) {
+            invoke<number>("plugin:sqlite_connector|delete_fixture_by_id", { id: selectedRow })
+                .then((res) => {
+                    console.log(res);
+                    dispatch(showSnackBar("Test Fixture Deleted"));
+                })
+                .catch((err) => {
+                    console.log(err);
+                    dispatch(showSnackBar("Fail to delete Test Fixture"));
+                })
+        } else {
+            console.log("selectedRow is null");
+            dispatch(showSnackBar("Error deleting Test Fixture"));            
+        }
+    }
+
     return (
         <TableContainer component={Paper}>
-            <Table>
+            <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
+                <DialogTitle>Delete Test Fixture</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Are you sure you want to delete this Test Fixture?
+                    </DialogContentText>
+                    <DialogContentText>
+                        This action cannot be reversed!
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="contained" onClick={handleDeleteItem}>Delete</Button>
+                    <Button variant="contained" onClick={handleCloseDeleteDialog}>Cancel</Button>
+                </DialogActions>
+            </Dialog>            
+            <Table size="small">
                 <TableHead>
                     <TableRow>
                         <TableCell>Name</TableCell>
-                        <TableCell>Quantity</TableCell>
-                        <TableCell>Project Association</TableCell>
-                        <TableCell>Misc</TableCell>
+                        <TableCell align="right">Quantity</TableCell>
+                        <TableCell align="right">Project Association</TableCell>
+                        <TableCell align="right">Misc</TableCell>
+                        <TableCell align="center">
+                            <IconButton disabled={true}>
+                                <DeleteIcon/>
+                            </IconButton>  
+                        </TableCell>                        
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {testFixtures.map((testFixture) => (
                         <TableRow key={testFixture.id}>
-                            <TableCell>{testFixture.name}</TableCell>    
-                            <TableCell>{testFixture.quantity}</TableCell>   
-                            <TableCell>{testFixture.projectAssociation}</TableCell>   
-                            <TableCell>{testFixture.misc}</TableCell>                                   
+                            <TableCell component="th" scope="row">{testFixture.name}</TableCell>    
+                            <TableCell align="right">{testFixture.quantity}</TableCell>   
+                            <TableCell align="right">{testFixture.projectAssociation}</TableCell>   
+                            <TableCell align="right">{testFixture.misc}</TableCell>  
+                            <TableCell align="center">
+                                <IconButton onClick={() => {
+                                    handleOpenDeleteDialog(testFixture.id || null)
+                                }}>
+                                    <DeleteIcon/>
+                                </IconButton>                             
+                            </TableCell>                                                             
                         </TableRow>
                     ))}
                 </TableBody>

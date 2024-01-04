@@ -1,9 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
-import testSampleTableSlice from "./slices/testSampleTableSlice";
+import snackBarSlice from "./slices/snackBarSlice";
 
 export const store = configureStore({
     reducer: {
-        testSampleTable: testSampleTableSlice,
+        snackBar: snackBarSlice,
     },
 });
 

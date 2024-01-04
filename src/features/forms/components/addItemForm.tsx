@@ -3,11 +3,13 @@ import React, { useState } from "react";
 import { TestCageItem } from "../../../enums";
 import { TestFixture, TestSample } from "../../../types";
 import { invoke } from '@tauri-apps/api/tauri'
-import { useAppDispatch, useGetAllTestSamples } from "../../../hooks";
-import { setTestSampleData } from "../../../slices/testSampleTableSlice";
+import { AppDispatch } from "../../../store";
+import { useAppDispatch } from "../../../hooks";
+import { showSnackBar } from "../../../slices/snackBarSlice";
 
 export const AddItemForm: React.FC = () => {
-    const dispatch = useAppDispatch()
+    const dispatch: AppDispatch = useAppDispatch();
+
 
     const [testCageItemType, setTestCageItemType] = useState<TestCageItem>(TestCageItem.TestSample);
 
@@ -29,7 +31,6 @@ export const AddItemForm: React.FC = () => {
                 misc: inputMisc,
             };
             addTestFixture(newTestFixture);
-            useGetAllTestSamples();
         } else {
             const newTestSample:TestSample = {
                 name: inputName,
@@ -41,21 +42,42 @@ export const AddItemForm: React.FC = () => {
                 misc: inputMisc,
             };
             addTestSample(newTestSample);
-
         }
     }
 
     const addTestSample = (sample:TestSample):void => {
         // Make sure the name of the arg parssed in is the same as the name of the parameter called in the backend
+        // for example the parameter "sample" in this function should be the same as the "sample" in the rust function add_test_sample
+        // const addTestSample = (sample:TestSample):void => {
+        //     ...
+        // }
+        // async fn add_test_sample<R: Runtime>(app_handle: AppHandle<R>, pool_state: State<'_, SqlitePoolConnection>, sample: TestSample) -> Result<i64, SerializedError>{
+        //     ...
+        // }
+        // arg sample name === parameter sample name
+
+        // const addTestSample = (testSample:TestSample):void => {
+        //     ...
+        // }
+        // async fn add_test_sample<R: Runtime>(app_handle: AppHandle<R>, pool_state: State<'_, SqlitePoolConnection>, sample: TestSample) -> Result<i64, SerializedError>{
+        //     ...
+        // }
+        // This wont work cause testSample != sample and will cause an error
         invoke<number>("plugin:sqlite_connector|add_test_sample", { sample })
             .then((res) => console.log(res))
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                console.log(err)
+                dispatch(showSnackBar("Test Sample Already Exist"));
+            });
     }
     
     const addTestFixture = (fixture:TestFixture):void => {
         invoke<number>("plugin:sqlite_connector|add_test_fixture", { fixture })
             .then((res) => console.log(res))
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                console.log(err)
+                dispatch(showSnackBar("Test Fixture Already Exist"));
+            });
     }
 
     const handleChangeTestCageItemType = (e: SelectChangeEvent):void => {

@@ -17,8 +17,9 @@ export type TestFixture = {
     misc?: string;
 }
 
-export type TestSampleTableState = {
-    data: TestSample[];
+export type SnackBarState = {
+    open: boolean;
+    message: string;
 }
 
 export type RouteItem = {

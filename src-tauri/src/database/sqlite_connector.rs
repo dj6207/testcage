@@ -1,12 +1,13 @@
 use tauri::{
     command,
+    AppHandle,
     plugin::{
         Builder, 
         TauriPlugin
     },
     Runtime,
     State,
-    generate_handler,
+    generate_handler, Manager,
 };
 
 use sqlx::{
@@ -32,7 +33,7 @@ use crate::types::{
 const DATABASE_URL:&str = "sqlite:testcage.db";
 
 #[command]
-async fn add_test_sample(pool_state: State<'_, SqlitePoolConnection>, sample: TestSample) -> Result<i64, SerializedError>{
+async fn add_test_sample<R: Runtime>(app_handle: AppHandle<R>, pool_state: State<'_, SqlitePoolConnection>, sample: TestSample) -> Result<i64, SerializedError>{
     let pool = pool_state.connection.lock().unwrap().clone().unwrap();
     let query = sqlx::query(
         "
@@ -48,11 +49,13 @@ async fn add_test_sample(pool_state: State<'_, SqlitePoolConnection>, sample: Te
         .bind(sample.misc)
         .execute(&pool)
         .await?;
+    // Sends a message to the frontend to notify that the database is updated and should re-fetch new data
+    app_handle.emit_all("database-update", "").expect("Failed to emit event");
     return Ok(query.last_insert_rowid());
 }
 
 #[command]
-async fn add_test_fixture(pool_state: State<'_, SqlitePoolConnection>, fixture: TestFixture) -> Result<i64, SerializedError>{
+async fn add_test_fixture<R: Runtime>(app_handle: AppHandle<R>, pool_state: State<'_, SqlitePoolConnection>, fixture: TestFixture) -> Result<i64, SerializedError>{
     let pool = pool_state.connection.lock().unwrap().clone().unwrap();
     let query = sqlx::query(
         "
@@ -65,12 +68,13 @@ async fn add_test_fixture(pool_state: State<'_, SqlitePoolConnection>, fixture: 
         .bind(fixture.misc)
         .execute(&pool)
         .await?;
+    app_handle.emit_all("database-update", "").expect("Failed to emit event");
     return Ok(query.last_insert_rowid());
 }
 
 // TODO 
 // DO NOT USE SELECT * 
-// THIS IS TEMP NEED TO FIX LATER
+// THIS IS TEMP WILL TO FIX LATER
 #[command]
 async fn get_all_test_samples(pool_state: State<'_, SqlitePoolConnection>) -> Result<Vec<TestSample>, SerializedError> {
     let pool = pool_state.connection.lock().unwrap().clone().unwrap();
@@ -94,6 +98,7 @@ async fn get_all_test_samples(pool_state: State<'_, SqlitePoolConnection>) -> Re
             misc: row.get(7),
         }
     }).collect();
+
     return Ok(test_samples);
 }
 
@@ -150,7 +155,7 @@ pub async fn initialize_sqlite_database() -> Result<Pool<Sqlite>, SqlxError>{
 }
 
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
-    Builder::new("sqlite_connector")
+    Builder::<R>::new("sqlite_connector")
         .invoke_handler(generate_handler![
             add_test_fixture,
             add_test_sample,

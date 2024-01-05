@@ -81,6 +81,9 @@ export const TestFixtureTable: React.FC = () => {
                         <TableCell align="right">Quantity</TableCell>
                         <TableCell align="right">Project Association</TableCell>
                         <TableCell align="right">Misc</TableCell>
+                        <TableCell align="right">Signed Out By</TableCell>
+                        <TableCell align="right">Date Signed Out</TableCell>
+                        <TableCell align="right">Date Returned</TableCell>
                         <TableCell align="center">
                             <IconButton disabled={true}>
                                 <DeleteIcon/>
@@ -95,6 +98,9 @@ export const TestFixtureTable: React.FC = () => {
                             <TableCell align="right">{testFixture.quantity}</TableCell>   
                             <TableCell align="right">{testFixture.projectAssociation}</TableCell>   
                             <TableCell align="right">{testFixture.misc}</TableCell>  
+                            <TableCell align="right">{testFixture.signedOutBy}</TableCell>  
+                            <TableCell align="right">{testFixture.dateSignedOut}</TableCell>  
+                            <TableCell align="right">{testFixture.dateReturned}</TableCell>  
                             <TableCell align="center">
                                 <IconButton onClick={() => {
                                     handleOpenDeleteDialog(testFixture.id || null)

@@ -37,7 +37,7 @@ async fn add_test_sample<R: Runtime>(app_handle: AppHandle<R>, pool_state: State
     let pool = pool_state.connection.lock().unwrap().clone().unwrap();
     let query = sqlx::query(
         "
-        INSERT INTO TestSamples (Name, Quantity, Model, SerialNumber, ProjectAssociation, ProductionEquivalence, Misc, SignedOutQuantity) VALUES (?, ?, ?, ?, ?, ?, ?, 0)
+        INSERT INTO TestSamples (Name, Quantity, Model, SerialNumber, ProjectAssociation, ProductionEquivalence, Misc, SignedOutQuantity, SignedOutBy) VALUES (?, ?, ?, ?, ?, ?, ?, 0, '')
         "
     )
         .bind(item.name)
@@ -59,7 +59,7 @@ async fn add_test_fixture<R: Runtime>(app_handle: AppHandle<R>, pool_state: Stat
     let pool = pool_state.connection.lock().unwrap().clone().unwrap();
     let query = sqlx::query(
         "
-        INSERT INTO TestFixtures (Name, Quantity, ProjectAssociation, Misc, SignedOutQuantity) VALUES (?, ?, ?, ?, 0)
+        INSERT INTO TestFixtures (Name, Quantity, ProjectAssociation, Misc, SignedOutQuantity, SignedOutBy) VALUES (?, ?, ?, ?, 0, '')
         "
     )
         .bind(item.name)

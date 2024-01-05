@@ -17,7 +17,7 @@ export const TablePage: React.FC = () => {
 
     return (
         <>
-            <ButtonGroup size="small" fullWidth variant="contained">
+            <ButtonGroup size="small" fullWidth variant="contained" sx={{marginTop: '10px', marginBottom: '10px'}}>
                 <Button onClick={() => setTestCageItemTable(TestCageItem.TestSample)}>
                     Test Samples
                 </Button>

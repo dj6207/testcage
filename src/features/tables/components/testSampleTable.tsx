@@ -85,6 +85,9 @@ export const TestSampleTable: React.FC = () => {
                         <TableCell align="right">Project Association</TableCell>
                         <TableCell align="right">Production Equivalence</TableCell>
                         <TableCell align="right">Misc</TableCell>
+                        <TableCell align="right">Signed Out By</TableCell>
+                        <TableCell align="right">Date Signed Out</TableCell>
+                        <TableCell align="right">Date Returned</TableCell>
                         <TableCell align="center">
                             <IconButton disabled={true}>
                                 <DeleteIcon/>
@@ -102,6 +105,9 @@ export const TestSampleTable: React.FC = () => {
                             <TableCell align="right">{testSample.projectAssociation}</TableCell>   
                             <TableCell align="right">{testSample.productEquivalence}</TableCell> 
                             <TableCell align="right">{testSample.misc}</TableCell>    
+                            <TableCell align="right">{testSample.signedOutBy}</TableCell>  
+                            <TableCell align="right">{testSample.dateSignedOut}</TableCell>  
+                            <TableCell align="right">{testSample.dateReturned}</TableCell>  
                             <TableCell align="center">
                                 <IconButton onClick={() => {
                                     handleOpenDeleteDialog(testSample.id || null)

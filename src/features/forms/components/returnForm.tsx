@@ -10,7 +10,6 @@ export const ReturnForm: React.FC<ReturnFormProps> = ({ signOutLog }) => {
     const dispatch: AppDispatch = useAppDispatch();
 
     const handleReturn = (e:React.FocusEvent<HTMLFormElement>):void => {
-        e.preventDefault();
         if (signOutLog != null && signOutLog?.id != null) {
             if (signOutLog.testSampleId != undefined) {
                 returnSampleById(signOutLog.id, signOutLog.testSampleId, signOutLog.signedOutQuantity);

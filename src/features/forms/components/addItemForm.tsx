@@ -88,7 +88,6 @@ export const AddItemForm: React.FC = () => {
     return (
         <Container component="main" maxWidth="sm">
             <Box component="form" onSubmit={handleAddItem} sx={{ mt: 1 }}>
-            <FormLabel sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center',}}>New {testCageItemType}</FormLabel>
                 <FormControl fullWidth>
                     <InputLabel>Item Type</InputLabel>
                     <Select

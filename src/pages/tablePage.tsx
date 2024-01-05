@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AddItemForm, TestFixtureTable, TestSampleTable } from "../features";
-import { Button, ButtonGroup, Dialog, DialogActions, DialogContent, Paper, Toolbar } from "@mui/material";
+import { Button, ButtonGroup, Dialog, DialogActions, DialogContent, DialogContentText, Paper, Toolbar } from "@mui/material";
 import { TestCageItem } from "../enums";
 
 export const TablePage: React.FC = () => {
@@ -29,7 +29,12 @@ export const TablePage: React.FC = () => {
                 </Button>
             </ButtonGroup>
             <Dialog open={openAddItemDialog} onClose={handleCloseAddItemDialog}>
-                <DialogActions>
+                <DialogActions sx={{backgroundColor: '#ddd'}}>
+                    <DialogContent sx={{marginLeft: '10px', padding: '0px'}}>
+                        <DialogContentText>
+                            New Test Fixture / Test Sample
+                        </DialogContentText>
+                    </DialogContent>
                     <Button variant="contained" onClick={handleCloseAddItemDialog}>Close</Button>
                 </DialogActions>
                 <DialogContent>

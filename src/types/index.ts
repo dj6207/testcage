@@ -1,3 +1,5 @@
+import { TestCageItem } from "../enums";
+
 export type TestSample = {
     id?: number;
     name: string;
@@ -7,10 +9,6 @@ export type TestSample = {
     projectAssociation?: string;
     productEquivalence?: string;
     misc?: string;
-    signedOutQuantity?: number;
-    signedOutBy?: string;
-    dateSignedOut?: string;
-    dateReturned?: string;
 }
 
 export type TestFixture = {
@@ -19,8 +17,14 @@ export type TestFixture = {
     quantity: number;
     projectAssociation?: string;
     misc?: string;
-    signedOutQuantity?: number;
-    signedOutBy?: string;
+}
+
+export type SignOutLogs = {
+    id?: number;
+    testSampleId?:number;
+    testFixtureId?:number;
+    signedOutQuantity: number;
+    signedOutBy: string;
     dateSignedOut?: string;
     dateReturned?: string;
 }
@@ -37,4 +41,8 @@ export type RouteItem = {
 
 export type NavBarProps = {
     routes: RouteItem[];
+}
+
+export type SignOutFormProps = {
+    signOutItem: TestSample | TestFixture | null;
 }

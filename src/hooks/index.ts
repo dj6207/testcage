@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { TestFixture, TestSample } from "../types";
-import { invoke } from "@tauri-apps/api";
+import { invoke } from "@tauri-apps/api/tauri";
 import { listen } from "@tauri-apps/api/event";
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../store';

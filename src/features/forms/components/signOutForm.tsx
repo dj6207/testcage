@@ -1,92 +1,88 @@
-import { Box, Button, ButtonGroup, Dialog, List, ListItem, ListItemButton, ListItemText, TextField } from "@mui/material";
+import { 
+    Box, Button, Container, TextField 
+} from "@mui/material";
 import React, { useState } from "react";
-import { TestFixture, TestSample } from "../../../types";
-import { useGetAllTestFixtures, useGetAllTestSamples } from "../../../hooks";
-import { TestCageItem } from "../../../enums";
+import { SignOutFormProps } from "../../../types";
+import { invoke } from "@tauri-apps/api/tauri";
+import { useAppDispatch } from "../../../hooks";
+import { AppDispatch } from "../../../store";
+import { showSnackBar } from "../../../slices/snackBarSlice";
+import { isTestSample } from "../../../utils";
 
-export const SignOutForm: React.FC = () => {
-    const [search, setSearch] = useState<string>('');
-    const [testCageItemType, setTestCageItemType] = useState<TestCageItem>(TestCageItem.TestSample);
-    const [selectedTestItem, setSelectedTestItem] = useState<TestSample | TestFixture | null>();
+export const SignOutForm: React.FC<SignOutFormProps> = ({ signOutItem }) => {
+    const dispatch: AppDispatch = useAppDispatch();
 
-    const testSamples:TestSample[] = useGetAllTestSamples();
-    const testFixtures:TestFixture[] = useGetAllTestFixtures();
+    const [inputQuantity, setInputQuantity] = useState<string>("");
+    const [inputSignOutUser, setInputSignOutUser] = useState<string>("");
 
-    const filterTestSamples = (unfilteredTestSamples:TestSample) => {
-        return unfilteredTestSamples.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()) ||
-        unfilteredTestSamples.serialNumber.toLocaleLowerCase().includes(search.toLocaleLowerCase()) ||
-        unfilteredTestSamples.model?.toLocaleLowerCase().includes(search.toLocaleLowerCase()) ||
-        unfilteredTestSamples.projectAssociation?.toLocaleLowerCase().includes(search.toLocaleLowerCase()) ||
-        unfilteredTestSamples.productEquivalence?.toLocaleLowerCase().includes(search.toLocaleLowerCase())
+    const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>):void => {
+        const quantityValue = e.target.value;
+        if (signOutItem != null &&  (quantityValue == '' || (/^[0-9]*$/.test(quantityValue) && parseInt(quantityValue, 10) >= 0 && parseInt(quantityValue, 10) <= signOutItem.quantity))) {
+            setInputQuantity(quantityValue);
+        }
     }
 
-    const filterTestFixtures = (unfilteredTestFixture:TestFixture) => {
-        return unfilteredTestFixture.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()) ||
-        unfilteredTestFixture.projectAssociation?.toLocaleLowerCase().includes(search.toLocaleLowerCase())
+    const handleSignOut = (e:React.FocusEvent<HTMLFormElement>):void => {
+        e.preventDefault();
+        const quantity = parseInt(inputQuantity) || 0;
+        if (signOutItem !== null && signOutItem?.id != undefined && quantity != 0) {
+            if (isTestSample(signOutItem)) {
+                signOutSampleById(signOutItem.id, quantity, inputSignOutUser);
+            } else {
+                signOutFixtureById(signOutItem.id, quantity, inputSignOutUser);
+            }
+        } else {
+            dispatch(showSnackBar("Input a valid quantity"));
+        }
     }
 
+    const signOutSampleById = (id: number, quantity: number, user: string):void => {
+        invoke<number>("plugin:sqlite_connector|sign_out_sample_by_id", {id: id, quantity: quantity, user: user})
+            .then((res) => console.log(res))
+            .catch((err) => {
+                console.log(err)
+                dispatch(showSnackBar("Error signing out item"));
+            });
+    }
 
-    const filteredTestSamples = testSamples.filter(filterTestSamples);
-    const filteredTestFixtures = testFixtures.filter(filterTestFixtures);
-
-    const handleSignOut = ():void => {
-
+    const signOutFixtureById = (id: number, quantity: number, signedOutBy: string):void => {
+        invoke<number>("plugin:sqlite_connector|sign_out_fixture_by_id", {id: id, quantity: quantity, signed_out_by: signedOutBy})
+            .then((res) => console.log(res))
+            .catch((err) => {
+                console.log(err)
+                dispatch(showSnackBar("Error signing out item"));
+            });
     }
 
     return (
-        <Box component="form" onSubmit={handleSignOut}>
-            <ButtonGroup size="small" fullWidth variant="contained" sx={{marginTop: '10px', marginBottom: '10px'}}>
-                <Button onClick={() => setTestCageItemType(TestCageItem.TestSample)}>
-                    Test Samples
-                </Button>
-                <Button onClick={() => setTestCageItemType(TestCageItem.TestFixture)}>
-                    Test Fixtures
-                </Button>
-            </ButtonGroup>
-            <TextField 
-                label="Search Item" 
-                margin="normal"
-                variant="outlined" 
-                fullWidth 
-                value={search} 
-                onChange={(e) => setSearch(e.target.value)}
-            />
-            {testCageItemType === TestCageItem.TestSample ? (
-                <List sx={{border: '1px solid #ddd', borderRadius: '4px'}}>
-                    {filteredTestSamples.map(testSample => (
-                        <ListItemButton key={testSample.id} onClick={() => setSelectedTestItem(testSample)}>
-                            <ListItemText 
-                                primary={testSample.name} 
-                                secondary={
-                                    `| 
-                                    Quantity: ${testSample.quantity} | 
-                                    Serial Number: ${testSample.serialNumber} | 
-                                    Model: ${testSample.model} | 
-                                    Project Association: ${testSample.projectAssociation} | 
-                                    Product Equivalence: ${testSample.productEquivalence} 
-                                    |`
-                                }
-                            />
-                        </ListItemButton>
-                    ))}
-                </List>
-            ) : (
-                <List sx={{border: '1px solid #ddd', borderRadius: '4px'}}>
-                    {filteredTestFixtures.map(testFixture => (
-                        <ListItemButton key={testFixture.id} onClick={() => setSelectedTestItem(testFixture)}>
-                            <ListItemText 
-                                primary={testFixture.name} 
-                                secondary={
-                                    `| 
-                                    Quantity: ${testFixture.quantity} | 
-                                    Project Association: ${testFixture.projectAssociation} 
-                                    |`
-                                }
-                            />
-                        </ListItemButton>
-                    ))}
-                </List>
+        <Container component="main" maxWidth="sm">
+            {signOutItem != null && (
+                <Box component="form" onSubmit={handleSignOut}>
+                    <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        label='Signed Out By'
+                        value={inputSignOutUser}
+                        onChange={(e) => setInputSignOutUser(e.target.value)}
+                    />                    
+                    <TextField
+                        margin="normal"
+                        fullWidth
+                        required
+                        label="Sign Out Quantity"
+                        value={inputQuantity}
+                        onChange={handleQuantityChange}
+                    />
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        fullWidth
+                    >
+                        Sign Out
+                    </Button>
+                </Box>
             )}
-        </Box>
+        </Container>
     );
 }

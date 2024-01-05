@@ -4,3 +4,11 @@ export const formatTime = (date:Date):string => {
     const day = date.getDate().toString().padStart(2, '0');
     return `${year}-${month}-${day}`;
 }
+
+export const isTestSample = (obj: Object):boolean => {
+    return 'model' in  obj && 'serialNumber' in obj && 'productEquivalence' in obj;
+}
+
+export const isTestFixture = (obj: Object):boolean => {
+    return !('model' in  obj && 'serialNumber' in obj && 'productEquivalence' in obj);
+}

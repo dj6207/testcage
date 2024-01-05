@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AddItemForm, TestFixtureTable, TestSampleTable } from "../features";
-import { AppBar, Button, Dialog, DialogActions, DialogContent, Paper, Toolbar } from "@mui/material";
+import { Button, ButtonGroup, Dialog, DialogActions, DialogContent, Paper, Toolbar } from "@mui/material";
 import { TestCageItem } from "../enums";
 
 export const TablePage: React.FC = () => {
@@ -17,25 +17,17 @@ export const TablePage: React.FC = () => {
 
     return (
         <>
-            <AppBar position="static">
-                <Toolbar>
-                    <Button
-                        color="inherit"
-                        onClick={() => setTestCageItemTable(TestCageItem.TestSample)}
-                    >
-                        Test Samples
-                    </Button>
-                    <Button
-                        color="inherit"
-                        onClick={() => setTestCageItemTable(TestCageItem.TestFixture)}
-                    >
-                        Test Fixtures
-                    </Button>
-                </Toolbar>
-            </AppBar>
-            <Button fullWidth variant="contained" onClick={handleOpenAddItemDialog}>
-                Add Test Fixture / Test Sample
-            </Button>
+            <ButtonGroup size="small" fullWidth variant="contained">
+                <Button onClick={() => setTestCageItemTable(TestCageItem.TestSample)}>
+                    Test Samples
+                </Button>
+                <Button onClick={() => setTestCageItemTable(TestCageItem.TestFixture)}>
+                    Test Fixtures
+                </Button>
+                <Button onClick={handleOpenAddItemDialog}>
+                    Add Test Fixture / Test Sample
+                </Button>
+            </ButtonGroup>
             <Dialog open={openAddItemDialog} onClose={handleCloseAddItemDialog}>
                 <DialogActions>
                     <Button variant="contained" onClick={handleCloseAddItemDialog}>Close</Button>

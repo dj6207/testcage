@@ -16,12 +16,20 @@ pub struct TestSample {
     pub quantity: i64,
     pub model: Option<String>,
     #[serde(rename = "serialNumber")]
-    pub serial_number: i64,
+    pub serial_number: String,
     #[serde(rename = "projectAssociation")]
     pub project_association: Option<String>,
     #[serde(rename = "productEquivalence")]
     pub product_equivalence: Option<String>,
     pub misc: Option<String>,
+    #[serde(rename = "signedOutQuantity")]
+    pub signed_out_quantity: Option<i64>,
+    #[serde(rename = "signedOutBy")]
+    pub signed_out_by: Option<String>,
+    #[serde(rename = "dateSignedOut")]
+    pub date_signed_out: Option<String>,
+    #[serde(rename = "dateReturned")]
+    pub date_returned: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow)]
@@ -32,4 +40,12 @@ pub struct TestFixture {
     #[serde(rename = "projectAssociation")]
     pub project_association: Option<String>,
     pub misc: Option<String>,
+    #[serde(rename = "signedOutQuantity")]
+    pub signed_out_quantity: Option<i64>,
+    #[serde(rename = "signedOutBy")]
+    pub signed_out_by: Option<String>,
+    #[serde(rename = "dateSignedOut")]
+    pub date_signed_out: Option<String>,
+    #[serde(rename = "dateReturned")]
+    pub date_returned: Option<String>,
 }

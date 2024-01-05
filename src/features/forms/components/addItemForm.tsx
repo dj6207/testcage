@@ -10,7 +10,6 @@ import { showSnackBar } from "../../../slices/snackBarSlice";
 export const AddItemForm: React.FC = () => {
     const dispatch: AppDispatch = useAppDispatch();
 
-
     const [testCageItemType, setTestCageItemType] = useState<TestCageItem>(TestCageItem.TestSample);
 
     const [inputName, setInputName] = useState<string>("");
@@ -36,7 +35,7 @@ export const AddItemForm: React.FC = () => {
                 name: inputName,
                 quantity: parseInt(inputQuantity) || 1,
                 model: inputModel,
-                serialNumber: parseInt(inputSerialNumber) || -1,
+                serialNumber: inputSerialNumber,
                 projectAssociation: inputProjectAssociation,
                 productEquivalence: inputProductionEquivalence,
                 misc: inputMisc,
@@ -149,12 +148,7 @@ export const AddItemForm: React.FC = () => {
                             fullWidth
                             label='Serial Number'
                             value={inputSerialNumber}
-                            onChange={(e) => {
-                                const serialNumberValue = e.target.value;
-                                if (serialNumberValue == '' || /^[0-9]*$/.test(serialNumberValue)) {
-                                    setInputSerialNumber(serialNumberValue)
-                                }
-                            }}
+                            onChange={(e) => setInputSerialNumber(e.target.value)}
                         />    
                         <TextField
                             margin="normal"

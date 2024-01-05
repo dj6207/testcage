@@ -37,7 +37,7 @@ async fn add_test_sample<R: Runtime>(app_handle: AppHandle<R>, pool_state: State
     let pool = pool_state.connection.lock().unwrap().clone().unwrap();
     let query = sqlx::query(
         "
-        INSERT INTO TestSamples (Name, Quantity, Model, SerialNumber, ProjectAssociation, ProductionEquivalence, Misc) VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO TestSamples (Name, Quantity, Model, SerialNumber, ProjectAssociation, ProductionEquivalence, Misc, SignedOutQuantity) VALUES (?, ?, ?, ?, ?, ?, ?, 0)
         "
     )
         .bind(item.name)
@@ -59,7 +59,7 @@ async fn add_test_fixture<R: Runtime>(app_handle: AppHandle<R>, pool_state: Stat
     let pool = pool_state.connection.lock().unwrap().clone().unwrap();
     let query = sqlx::query(
         "
-        INSERT INTO TestFixtures (Name, Quantity, ProjectAssociation, Misc) VALUES (?, ?, ?, ?)
+        INSERT INTO TestFixtures (Name, Quantity, ProjectAssociation, Misc, SignedOutQuantity) VALUES (?, ?, ?, ?, 0)
         "
     )
         .bind(item.name)
@@ -96,6 +96,10 @@ async fn get_all_test_samples(pool_state: State<'_, SqlitePoolConnection>) -> Re
             project_association: row.get(5),
             product_equivalence: row.get(6),
             misc: row.get(7),
+            signed_out_quantity: row.get(8),
+            signed_out_by: row.get(9),
+            date_signed_out: row.get(10),
+            date_returned: row.get(11),
         }
     }).collect();
 
@@ -120,6 +124,10 @@ async fn get_all_test_fixtures(pool_state: State<'_, SqlitePoolConnection>) -> R
             quantity: row.get(2),
             project_association: row.get(3),
             misc: row.get(4),
+            signed_out_quantity: row.get(5),
+            signed_out_by: row.get(6),
+            date_signed_out: row.get(7),
+            date_returned: row.get(8),
         }
     }).collect();
     return Ok(test_fixture);
@@ -166,10 +174,15 @@ pub async fn initialize_sqlite_database() -> Result<Pool<Sqlite>, SqlxError>{
             Name TEXT,
             Quantity INTEGER,
             Model TEXT,
-            SerialNumber INTEGER UNIQUE,
+            SerialNumber TEXT UNIQUE,
             ProjectAssociation TEXT,
             ProductionEquivalence TEXT,
-            Misc TEXT
+            Misc TEXT,
+            SignedOutQuantity INTEGER,
+            SignedOutBy TEXT,
+            DateSignedOut DATE,
+            DateReturned DATE
+
         );
 
         CREATE TABLE IF NOT EXISTS TestFixtures (
@@ -177,7 +190,11 @@ pub async fn initialize_sqlite_database() -> Result<Pool<Sqlite>, SqlxError>{
             Name TEXT UNIQUE,
             Quantity INTEGER,
             ProjectAssociation TEXT,
-            Misc TEXT
+            Misc TEXT,
+            SignedOutQuantity INTEGER,
+            SignedOutBy TEXT,
+            DateSignedOut DATE,
+            DateReturned DATE
         );
         "
     ).execute(&pool).await?;

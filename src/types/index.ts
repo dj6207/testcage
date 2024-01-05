@@ -3,10 +3,14 @@ export type TestSample = {
     name: string;
     quantity: number;
     model?: string;
-    serialNumber: number;
+    serialNumber: string;
     projectAssociation?: string;
     productEquivalence?: string;
     misc?: string;
+    signedOutQuantity?: number;
+    signedOutBy?: string;
+    dateSignedOut?: string;
+    dateReturned?: string;
 }
 
 export type TestFixture = {
@@ -15,6 +19,10 @@ export type TestFixture = {
     quantity: number;
     projectAssociation?: string;
     misc?: string;
+    signedOutQuantity?: number;
+    signedOutBy?: string;
+    dateSignedOut?: string;
+    dateReturned?: string;
 }
 
 export type SnackBarState = {

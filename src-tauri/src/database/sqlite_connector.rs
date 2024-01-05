@@ -28,7 +28,7 @@ use crate::types::{
     enums::SerializedError, 
     structs::{
         SqlitePoolConnection, 
-        TestSample, TestFixture
+        TestSample, TestFixture, SignOutLogs
     }
 };
 
@@ -85,7 +85,6 @@ async fn get_all_test_samples(pool_state: State<'_, SqlitePoolConnection>) -> Re
         SELECT * FROM TestSamples
         "
     )
-        .bind(0)
         .fetch_all(&pool)
         .await?;
     let test_samples:Vec<TestSample> = query.into_iter().map(|row| {
@@ -112,7 +111,6 @@ async fn get_all_test_fixtures(pool_state: State<'_, SqlitePoolConnection>) -> R
         SELECT * FROM TestFixtures
         "
     )
-        .bind(0)
         .fetch_all(&pool)
         .await?;
     let test_fixture:Vec<TestFixture> = query.into_iter().map(|row| {
@@ -125,6 +123,33 @@ async fn get_all_test_fixtures(pool_state: State<'_, SqlitePoolConnection>) -> R
         }
     }).collect();
     return Ok(test_fixture);
+}
+
+#[command]
+async fn get_all_sign_out_logs(pool_state: State<'_, SqlitePoolConnection>) -> Result<Vec<SignOutLogs>, SerializedError> {
+    let pool = pool_state.connection.lock().unwrap().clone().unwrap();
+    let query = sqlx::query(
+        "
+        SELECT sol.SignOutLogID, ts.NAME, tf.NAME, sol.SignedOutQuantity, sol.SignedOutBy, sol.DateSignedOut, sol.DateReturned
+        FROM SignOutLogs sol
+        INNER JOIN TestSamples ts ON sol.TestSampleID = ts.TestSampleID
+        INNER JOIN TestFixtures tf ON sol.TestFixtureID = tf.TestFixtureID
+        "
+    )
+        .fetch_all(&pool)
+        .await?;
+    let sign_out_logs: Vec<SignOutLogs> = query.into_iter().map(|row| {
+        SignOutLogs {
+            id: row.get(0),
+            test_sample_id: row.get(1),
+            test_fixture_id: row.get(2),
+            signed_out_quantity: row.get(3),
+            signed_out_by: row.get(4),
+            date_signed_out: row.get(5),
+            date_returned: row.get(6),
+        }
+    }).collect();
+    return Ok(sign_out_logs);
 }
 
 #[command]

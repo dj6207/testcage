@@ -41,6 +41,10 @@ pub struct SignOutLogs {
     pub test_sample_id: Option<i64>,
     #[serde(rename = "testFixtureId")]
     pub test_fixture_id: Option<i64>,
+    #[serde(rename = "testSample")]
+    pub test_sample: Option<String>,
+    #[serde(rename = "testFixture")]
+    pub test_fixture: Option<String>,
     #[serde(rename = "signedOutQuantity")]
     pub signed_out_quantity: i64,
     #[serde(rename = "signedOutBy")]

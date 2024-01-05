@@ -22,13 +22,13 @@ export const SignOutPage: React.FC = () => {
         unfilteredTestSamples.productEquivalence?.toLocaleLowerCase().includes(search.toLocaleLowerCase())
     }
 
-    const filterTestFixtures = (unfilteredTestFixture:TestFixture) => {
+    const filterTestFixtures = (unfilteredTestFixture:TestFixture):boolean | undefined => {
         return unfilteredTestFixture.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()) ||
         unfilteredTestFixture.projectAssociation?.toLocaleLowerCase().includes(search.toLocaleLowerCase())
     }
 
-    const filteredTestSamples = testSamples.filter(filterTestSamples);
-    const filteredTestFixtures = testFixtures.filter(filterTestFixtures);
+    const filteredTestSamples:TestSample[] = testSamples.filter(filterTestSamples);
+    const filteredTestFixtures:TestFixture[] = testFixtures.filter(filterTestFixtures);
 
 
     const handleOpenSignOutDialog = (testItem:TestSample | TestFixture):void => {

@@ -45,8 +45,8 @@ export const SignOutForm: React.FC<SignOutFormProps> = ({ signOutItem }) => {
             });
     }
 
-    const signOutFixtureById = (id: number, quantity: number, signedOutBy: string):void => {
-        invoke<number>("plugin:sqlite_connector|sign_out_fixture_by_id", {id: id, quantity: quantity, signed_out_by: signedOutBy})
+    const signOutFixtureById = (id: number, quantity: number, user: string):void => {
+        invoke<number>("plugin:sqlite_connector|sign_out_fixture_by_id", {id: id, quantity: quantity, user: user})
             .then((res) => console.log(res))
             .catch((err) => {
                 console.log(err)

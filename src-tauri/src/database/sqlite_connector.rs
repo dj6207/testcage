@@ -130,10 +130,19 @@ async fn get_all_sign_out_logs(pool_state: State<'_, SqlitePoolConnection>) -> R
     let pool = pool_state.connection.lock().unwrap().clone().unwrap();
     let query = sqlx::query(
         "
-        SELECT sol.SignOutLogID, ts.NAME, tf.NAME, sol.SignedOutQuantity, sol.SignedOutBy, sol.DateSignedOut, sol.DateReturned
+        SELECT 
+            sol.SignOutLogID, 
+            sol.TestSampleID,
+            sol.TestFixtureID,
+            ts.NAME as TestSample, 
+            tf.NAME as TestFixture, 
+            sol.SignedOutQuantity, 
+            sol.SignedOutBy, 
+            sol.DateSignedOut, 
+            sol.DateReturned
         FROM SignOutLogs sol
-        INNER JOIN TestSamples ts ON sol.TestSampleID = ts.TestSampleID
-        INNER JOIN TestFixtures tf ON sol.TestFixtureID = tf.TestFixtureID
+        LEFT JOIN TestSamples ts ON sol.TestSampleID = ts.TestSampleID
+        LEFT JOIN TestFixtures tf ON sol.TestFixtureID = tf.TestFixtureID
         "
     )
         .fetch_all(&pool)
@@ -143,10 +152,12 @@ async fn get_all_sign_out_logs(pool_state: State<'_, SqlitePoolConnection>) -> R
             id: row.get(0),
             test_sample_id: row.get(1),
             test_fixture_id: row.get(2),
-            signed_out_quantity: row.get(3),
-            signed_out_by: row.get(4),
-            date_signed_out: row.get(5),
-            date_returned: row.get(6),
+            test_sample: row.get(3),
+            test_fixture: row.get(4),
+            signed_out_quantity: row.get(5),
+            signed_out_by: row.get(6),
+            date_signed_out: row.get(7),
+            date_returned: row.get(8),
         }
     }).collect();
     return Ok(sign_out_logs);
@@ -155,14 +166,16 @@ async fn get_all_sign_out_logs(pool_state: State<'_, SqlitePoolConnection>) -> R
 #[command]
 async fn delete_sample_by_id<R: Runtime>(app_handle: AppHandle<R>, pool_state: State<'_, SqlitePoolConnection>, id:i64) -> Result<u64, SerializedError> {
     let pool = pool_state.connection.lock().unwrap().clone().unwrap();
+    let mut transaction: Transaction<Sqlite> = pool.begin().await?;
     let query = sqlx::query(
         "
             DELETE FROM TestSamples WHERE TestSampleID = ?
         "
     )
         .bind(id)
-        .execute(&pool)
+        .execute(&mut *transaction)
         .await?;
+    transaction.commit().await?;
     app_handle.emit_all("database-update", "").expect("Failed to emit event");
     return Ok(query.rows_affected());
 }
@@ -170,14 +183,16 @@ async fn delete_sample_by_id<R: Runtime>(app_handle: AppHandle<R>, pool_state: S
 #[command]
 async fn delete_fixture_by_id<R: Runtime>(app_handle: AppHandle<R>,pool_state: State<'_, SqlitePoolConnection>, id:i64) -> Result<u64, SerializedError> {
     let pool = pool_state.connection.lock().unwrap().clone().unwrap();
+    let mut transaction: Transaction<Sqlite> = pool.begin().await?;
     let query = sqlx::query(
         "
             DELETE FROM TestFixtures WHERE TestFixtureID = ?
         "
     )
         .bind(id)
-        .execute(&pool)
+        .execute(&mut *transaction)
         .await?;
+    transaction.commit().await?;
     app_handle.emit_all("database-update", "").expect("Failed to emit event");
     return Ok(query.rows_affected());
 }
@@ -232,6 +247,58 @@ async fn sign_out_fixture_by_id<R: Runtime>(app_handle: AppHandle<R>, pool_state
     return Ok(query.last_insert_rowid());
 }
 
+#[command]
+async fn return_sample_by_id<R: Runtime>(app_handle: AppHandle<R>, pool_state: State<'_, SqlitePoolConnection>, id:i64, test_sample_id:i64, quantity:i64) -> Result<u64, SerializedError> {
+    let pool = pool_state.connection.lock().unwrap().clone().unwrap();
+    let mut transaction: Transaction<Sqlite> = pool.begin().await?;
+    let query = sqlx::query(
+        "
+            UPDATE SignOutLogs
+            SET DateReturned = ?
+            WHERE SignOutLogID = ?;
+
+            UPDATE TestSamples
+            SET Quantity = Quantity + ?
+            WHERE TestSampleID = ?;
+        "
+    )
+        .bind(Local::now().format("%Y-%m-%d").to_string())
+        .bind(id)
+        .bind(quantity)
+        .bind(test_sample_id)
+        .execute(&mut *transaction)
+        .await?;
+    transaction.commit().await?;
+    app_handle.emit_all("database-update", "").expect("Failed to emit event");
+    return Ok(query.rows_affected());
+}
+
+#[command]
+async fn return_fixture_by_id<R: Runtime>(app_handle: AppHandle<R>, pool_state: State<'_, SqlitePoolConnection>, id:i64, test_fixture_id:i64, quantity:i64) -> Result<u64, SerializedError> {
+    let pool = pool_state.connection.lock().unwrap().clone().unwrap();
+    let mut transaction: Transaction<Sqlite> = pool.begin().await?;
+    let query = sqlx::query(
+        "
+            UPDATE SignOutLogs
+            SET DateReturned = ?
+            WHERE SignOutLogID = ?;
+
+            UPDATE TestFixtures
+            SET Quantity = Quantity + ?
+            WHERE TestFixtureID = ?;
+        "
+    )
+        .bind(Local::now().format("%Y-%m-%d").to_string())
+        .bind(id)
+        .bind(quantity)
+        .bind(test_fixture_id)
+        .execute(&mut *transaction)
+        .await?;  
+    transaction.commit().await?;
+    app_handle.emit_all("database-update", "").expect("Failed to emit event");
+    return Ok(query.rows_affected());      
+}
+
 pub async fn initialize_sqlite_database() -> Result<Pool<Sqlite>, SqlxError>{
     let connect_options = SqliteConnectOptions::from_str(DATABASE_URL)?
         .create_if_missing(true);
@@ -284,6 +351,9 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             delete_fixture_by_id,
             sign_out_sample_by_id,
             sign_out_fixture_by_id,
+            get_all_sign_out_logs,
+            return_sample_by_id,
+            return_fixture_by_id,
         ])
         .build()
 }

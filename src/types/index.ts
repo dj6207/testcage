@@ -19,10 +19,12 @@ export type TestFixture = {
     misc?: string;
 }
 
-export type SignOutLogs = {
+export type SignOutLog = {
     id?: number;
     testSampleId?:number;
     testFixtureId?:number;
+    testSample?:string;
+    testFixture?:string;
     signedOutQuantity: number;
     signedOutBy: string;
     dateSignedOut?: string;
@@ -45,4 +47,8 @@ export type NavBarProps = {
 
 export type SignOutFormProps = {
     signOutItem: TestSample | TestFixture | null;
+}
+
+export type ReturnFormProps = {
+    signOutLog: SignOutLog | null;
 }

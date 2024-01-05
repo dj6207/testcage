@@ -42,7 +42,8 @@ export const TestFixtureTable: React.FC = () => {
     const handleDeleteItem = ():void => {
         handleCloseDeleteDialog();
         if (selectedRow != null) {
-            invoke<number>("plugin:sqlite_connector|delete_fixture_by_id", { id: selectedRow })
+            const id = selectedRow;
+            invoke<number>("plugin:sqlite_connector|delete_fixture_by_id", { id: id })
                 .then((res) => {
                     console.log(res);
                     dispatch(showSnackBar("Test Fixture Deleted"));

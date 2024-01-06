@@ -64,6 +64,7 @@ export const AddItemForm: React.FC = () => {
         // This wont work cause testSample != sample and will cause an error
 
         // Or just use the format { item: fixture } left is rust argument name and right is typescript parameter name
+        // Or go in to /src-tauri/src/types/struct and use #[serde(rename = "testSampleId")] 
         invoke<number>("plugin:sqlite_connector|add_test_fixture", { item: item })
             .then((res) => console.log(res))
             .catch((err) => {

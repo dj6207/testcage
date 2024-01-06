@@ -88,7 +88,7 @@ export const TestSampleTable: React.FC = () => {
                         <TableCell align="right">Production Equivalence</TableCell>
                         <TableCell align="right">Misc</TableCell>
                         <TableCell align="center">
-                            <IconButton disabled={true}>
+                            <IconButton disabled={true} size="small">
                                 <DeleteIcon/>
                             </IconButton>  
                         </TableCell>
@@ -105,7 +105,7 @@ export const TestSampleTable: React.FC = () => {
                             <TableCell align="right">{testSample.productEquivalence}</TableCell> 
                             <TableCell align="right">{testSample.misc}</TableCell>    
                             <TableCell align="center">
-                                <IconButton onClick={() => {
+                                <IconButton size="small" onClick={() => {
                                     handleOpenDeleteDialog(testSample.id || null)
                                 }}>
                                     <DeleteIcon/>

@@ -55,20 +55,24 @@ export const ReturnPage: React.FC = () => {
                 />        
                 <List sx={{border: '1px solid #ddd', borderRadius: '4px'}}>
                     {filteredSignOutLogs.map(signOutLog => (
-                        <ListItemButton key={signOutLog.id} onClick={() => handleOpenReturnDialog(signOutLog)}>
-                            <ListItemText 
-                                primary={signOutLog.testSample || signOutLog.testFixture || "N/A"} 
-                                secondary={
-                                    `| 
-                                    Signed Out By: ${signOutLog.signedOutBy} | 
-                                    Quantity: ${signOutLog.signedOutQuantity} | 
-                                    Date Signed Out: ${signOutLog.dateSignedOut} 
-                                    |`
-                                }
-                            />
-                        </ListItemButton>
+                        <div key={signOutLog.id}>
+                            {signOutLog.dateReturned === null && (
+                                <ListItemButton onClick={() => handleOpenReturnDialog(signOutLog)}>
+                                    <ListItemText 
+                                        primary={signOutLog.testSample || signOutLog.testFixture || "N/A"} 
+                                        secondary={
+                                            `| 
+                                            Signed Out By: ${signOutLog.signedOutBy} | 
+                                            Quantity: ${signOutLog.signedOutQuantity} | 
+                                            Date Signed Out: ${signOutLog.dateSignedOut} 
+                                            |`
+                                        }
+                                    />
+                                </ListItemButton>
+                            )}
+                        </div>
                     ))}
-                </List>                      
+                </List>              
             </Paper>
         </>
     );

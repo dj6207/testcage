@@ -76,36 +76,44 @@ export const SignOutPage: React.FC = () => {
                 {testCageItemType === TestCageItem.TestSample ? (
                     <List sx={{border: '1px solid #ddd', borderRadius: '4px'}}>
                         {filteredTestSamples.map(testSample => (
-                            <ListItemButton key={testSample.id} onClick={() => handleOpenSignOutDialog(testSample)}>
-                                <ListItemText 
-                                    primary={testSample.name} 
-                                    secondary={
-                                        `| 
-                                        Quantity: ${testSample.quantity} | 
-                                        Serial Number: ${testSample.serialNumber} | 
-                                        Model: ${testSample.model} | 
-                                        Project Association: ${testSample.projectAssociation} | 
-                                        Product Equivalence: ${testSample.productEquivalence} 
-                                        |`
-                                    }
-                                />
-                            </ListItemButton>
+                            <div key={testSample.id}>
+                                {testSample.quantity != 0 && (
+                                    <ListItemButton onClick={() => handleOpenSignOutDialog(testSample)}>
+                                        <ListItemText 
+                                            primary={testSample.name} 
+                                            secondary={
+                                                `| 
+                                                Quantity: ${testSample.quantity} | 
+                                                Serial Number: ${testSample.serialNumber} | 
+                                                Model: ${testSample.model} | 
+                                                Project Association: ${testSample.projectAssociation} | 
+                                                Product Equivalence: ${testSample.productEquivalence} 
+                                                |`
+                                            }
+                                        />
+                                    </ListItemButton>
+                                )}
+                            </div>
                         ))}
                     </List>
                 ) : (
                     <List sx={{border: '1px solid #ddd', borderRadius: '4px'}}>
                         {filteredTestFixtures.map(testFixture => (
-                            <ListItemButton key={testFixture.id} onClick={() => handleOpenSignOutDialog(testFixture)}>
-                                <ListItemText 
-                                    primary={testFixture.name} 
-                                    secondary={
-                                        `| 
-                                        Quantity: ${testFixture.quantity} | 
-                                        Project Association: ${testFixture.projectAssociation} 
-                                        |`
-                                    }
-                                />
-                            </ListItemButton>
+                            <div key={testFixture.id}>
+                                {testFixture.quantity !== 0 && (
+                                    <ListItemButton onClick={() => handleOpenSignOutDialog(testFixture)}>
+                                        <ListItemText 
+                                            primary={testFixture.name} 
+                                            secondary={
+                                                `| 
+                                                Quantity: ${testFixture.quantity} | 
+                                                Project Association: ${testFixture.projectAssociation} 
+                                                |`
+                                            }
+                                        />
+                                    </ListItemButton>
+                                )}
+                            </div>
                         ))}
                     </List>
                 )}

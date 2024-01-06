@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { AddItemForm, TestFixtureTable, TestSampleTable } from "../features";
+import { AddItemForm, SignOutLogTable, TestFixtureTable, TestSampleTable } from "../features";
 import { Button, ButtonGroup, Dialog, DialogActions, DialogContent, DialogContentText, Paper, Toolbar } from "@mui/material";
-import { TestCageItem } from "../enums";
+import { TableType } from "../enums";
 
 export const TablePage: React.FC = () => {
     const [openAddItemDialog, setOpenAddItemDialog] = useState<boolean>(false);
-    const [testCageItemTable, setTestCageItemTable] = useState<TestCageItem>(TestCageItem.TestSample);
+    const [testCageItemTable, setTestCageItemTable] = useState<TableType>(TableType.TestSampleTable);
 
     const handleOpenAddItemDialog = () => {
         setOpenAddItemDialog(true);
@@ -18,11 +18,14 @@ export const TablePage: React.FC = () => {
     return (
         <>
             <ButtonGroup size="small" fullWidth variant="contained" sx={{marginTop: '10px', marginBottom: '10px'}}>
-                <Button onClick={() => setTestCageItemTable(TestCageItem.TestSample)}>
+                <Button onClick={() => setTestCageItemTable(TableType.TestSampleTable)}>
                     Test Samples
                 </Button>
-                <Button onClick={() => setTestCageItemTable(TestCageItem.TestFixture)}>
+                <Button onClick={() => setTestCageItemTable(TableType.TestFixtureTable)}>
                     Test Fixtures
+                </Button>
+                <Button onClick={() => setTestCageItemTable(TableType.SignOutLogTable)}>
+                    Sign Out Logs
                 </Button>
                 <Button onClick={handleOpenAddItemDialog}>
                     Add Test Fixture / Test Sample
@@ -42,10 +45,14 @@ export const TablePage: React.FC = () => {
                 </DialogContent>
             </Dialog>
             <Paper>
-                {testCageItemTable === TestCageItem.TestSample ? (
+                {testCageItemTable === TableType.TestSampleTable && (
                     <TestSampleTable/>
-                ) : (
+                )}
+                {testCageItemTable === TableType.TestFixtureTable && (
                     <TestFixtureTable/>
+                )}
+                {testCageItemTable === TableType.SignOutLogTable && (
+                    <SignOutLogTable/>
                 )}
             </Paper>
         </>

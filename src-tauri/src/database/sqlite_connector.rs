@@ -143,7 +143,6 @@ async fn get_all_sign_out_logs(pool_state: State<'_, SqlitePoolConnection>) -> R
         FROM SignOutLogs sol
         LEFT JOIN TestSamples ts ON sol.TestSampleID = ts.TestSampleID
         LEFT JOIN TestFixtures tf ON sol.TestFixtureID = tf.TestFixtureID
-        WHERE sol.DateReturned IS NULL
         "
     )
         .fetch_all(&pool)

@@ -83,7 +83,7 @@ export const TestFixtureTable: React.FC = () => {
                         <TableCell align="right">Project Association</TableCell>
                         <TableCell align="right">Misc</TableCell>
                         <TableCell align="center">
-                            <IconButton disabled={true}>
+                            <IconButton disabled={true} size="small">
                                 <DeleteIcon/>
                             </IconButton>  
                         </TableCell>                        
@@ -97,7 +97,7 @@ export const TestFixtureTable: React.FC = () => {
                             <TableCell align="right">{testFixture.projectAssociation}</TableCell>   
                             <TableCell align="right">{testFixture.misc}</TableCell>  
                             <TableCell align="center">
-                                <IconButton onClick={() => {
+                                <IconButton size="small" onClick={() => {
                                     handleOpenDeleteDialog(testFixture.id || null)
                                 }}>
                                     <DeleteIcon/>

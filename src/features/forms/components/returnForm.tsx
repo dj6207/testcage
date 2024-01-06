@@ -1,5 +1,5 @@
 import { Box, Button, Container } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import { ReturnFormProps } from "../../../types";
 import { AppDispatch } from "../../../store";
 import { useAppDispatch } from "../../../hooks";
@@ -9,7 +9,11 @@ import { invoke } from "@tauri-apps/api/tauri";
 export const ReturnForm: React.FC<ReturnFormProps> = ({ signOutLog }) => {
     const dispatch: AppDispatch = useAppDispatch();
 
+    const [disableButton, setDisableButton] = useState<boolean>(false);
+
     const handleReturn = (e:React.FocusEvent<HTMLFormElement>):void => {
+        e.preventDefault();
+        setDisableButton(true);
         if (signOutLog != null && signOutLog?.id != null) {
             if (signOutLog.testSampleId != undefined) {
                 returnSampleById(signOutLog.id, signOutLog.testSampleId, signOutLog.signedOutQuantity);
@@ -49,6 +53,7 @@ export const ReturnForm: React.FC<ReturnFormProps> = ({ signOutLog }) => {
                         type="submit"
                         variant="contained"
                         fullWidth
+                        disabled={disableButton}
                     >
                         Return
                     </Button>                

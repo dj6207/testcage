@@ -14,6 +14,7 @@ import {
     TableRow, 
     TextField,
     Button,
+    ButtonGroup,
 } from "@mui/material";
 import React, { useState } from "react";
 import { TestSample } from "../../../types";
@@ -54,32 +55,35 @@ export const TestSampleTable: React.FC = () => {
         setSelectedTestSample(null);
     }
 
-    const handleOnClickSettin = (row: number, testSample:TestSample):void => {
+    const handleOpenSettings = (row: number, testSample:TestSample):void => {
         if (selectedRow === null) {
             setSelectedRow(row);
 
             setInputName(testSample.name);
             setInputQuantity(testSample.quantity.toString());
+            setInputProjectAssociation(testSample.projectAssociation || '');
             setInputMisc(testSample.misc || '');
             setInputModel(testSample.model || '');
             setInputSerialNumber(testSample.serialNumber);
             setInputProductionEquivalence(testSample.productEquivalence || '');
-            setInputProjectAssociation(testSample.projectAssociation || '');
-        } else {
-            setSelectedRow(null);
-
-            setInputName('');
-            setInputQuantity('');
-            setInputMisc('');
-            setInputModel('');
-            setInputSerialNumber('');
-            setInputProductionEquivalence('');
-            setInputProjectAssociation('');
         }
+    }
+
+    const handleCloseSettings = ():void => {
+        setSelectedRow(null);
+
+        setInputName('');
+        setInputQuantity('');
+        setInputProjectAssociation('');
+        setInputMisc('');
+        setInputModel('');
+        setInputSerialNumber('');
+        setInputProductionEquivalence('');
     }
 
     const handleDeleteItem = ():void => {
         handleCloseDeleteDialog();
+        handleCloseSettings();
         if (selectedTestSample != null) {
             const id = selectedTestSample;
             invoke<number>("plugin:sqlite_connector|delete_sample_by_id", { id: id })
@@ -92,13 +96,38 @@ export const TestSampleTable: React.FC = () => {
                     dispatch(showSnackBar("Fail to delete Test Sample"));
                 })
         } else {
-            console.log("selectedRow is null");
+            console.log("selectedTestSample is null");
             dispatch(showSnackBar("Error deleting Test Sample"));
         }
     }
 
-    const handleUpdateItem = ():void => {
-        
+    const handleUpdateItem = (testSample:TestSample):void => {
+        handleCloseSettings();
+        if (testSample.id != null) {
+            const updatedTestSample:TestSample = {
+                id: testSample.id,
+                name: inputName,
+                quantity: parseInt(inputQuantity) || testSample.quantity,
+                model: inputModel,
+                serialNumber: inputSerialNumber,
+                projectAssociation: inputProjectAssociation,
+                productEquivalence: inputProductionEquivalence,
+                misc: inputMisc,
+            }
+            updateTestSample(updatedTestSample);
+        } else {
+            console.log("testSample is null");
+            dispatch(showSnackBar("Error Updating Test Sample"));
+        }
+    }
+
+    const updateTestSample = (item:TestSample):void => {
+        invoke<number>("plugin:sqlite_connector|update_test_sample_by_id", {item: item})
+            .then((res) => console.log(res))
+            .catch((err) => {
+                console.log(err);
+                dispatch(showSnackBar("Error Updating Test Sample"))
+            })
     }
 
     return (
@@ -144,6 +173,7 @@ export const TestSampleTable: React.FC = () => {
                                         size="small"
                                         value={inputName}
                                         onChange={(e) => setInputName(e.target.value)}
+                                        sx={{ maxWidth: '200px'}}
                                     />
                                     ) : (
                                     testSample.name
@@ -160,6 +190,7 @@ export const TestSampleTable: React.FC = () => {
                                                 setInputQuantity(quantityValue)
                                             }
                                         }}
+                                        sx={{ maxWidth: '200px'}}
                                     />
                                     ) : (
                                     testSample.quantity
@@ -168,9 +199,10 @@ export const TestSampleTable: React.FC = () => {
                             <TableCell align="right">
                                 {selectedRow === index ? (
                                     <TextField
-                                    size="small"
-                                    value={inputModel}
-                                    onChange={(e) => setInputModel(e.target.value)}
+                                        size="small"
+                                        value={inputModel}
+                                        onChange={(e) => setInputModel(e.target.value)}
+                                        sx={{ maxWidth: '200px'}}
                                     />
                                     ) : (
                                     testSample.model
@@ -182,6 +214,7 @@ export const TestSampleTable: React.FC = () => {
                                         size="small"
                                         value={inputSerialNumber}
                                         onChange={(e) => setInputSerialNumber(e.target.value)}
+                                        sx={{ maxWidth: '200px'}}
                                     />
                                     ) : (
                                     testSample.serialNumber
@@ -193,6 +226,7 @@ export const TestSampleTable: React.FC = () => {
                                         size="small"
                                         value={inputProjectAssociation}
                                         onChange={(e) => setInputProjectAssociation(e.target.value)}
+                                        sx={{ maxWidth: '200px'}}
                                     />
                                     ) : (
                                     testSample.projectAssociation
@@ -204,6 +238,7 @@ export const TestSampleTable: React.FC = () => {
                                         size="small"
                                         value={inputProductionEquivalence}
                                         onChange={(e) => setInputProductionEquivalence(e.target.value)}
+                                        sx={{ maxWidth: '200px'}}
                                     />
                                     ) : (
                                     testSample.productEquivalence
@@ -215,33 +250,37 @@ export const TestSampleTable: React.FC = () => {
                                         size="small"
                                         value={inputMisc}
                                         onChange={(e) => setInputMisc(e.target.value)}
+                                        sx={{ maxWidth: '200px'}}
                                     />
                                     ) : (
                                     testSample.misc
                                 )}                                  
                             </TableCell>    
                             <TableCell align="center">
-                                <IconButton size="small" onClick={() => handleOnClickSettin(index, testSample)}>
-                                    {selectedRow === null ? (
-                                        <SettingsIcon/>
-                                    ) : (
-                                        <CancelIcon/>
-                                    )}
-                                </IconButton>    
-                                {selectedRow != null && (
-                                    <>
-                                        <IconButton size="small" onClick={() => {
-                                            handleOpenDeleteDialog(testSample.id || null)
-                                        }}>
-                                            <SaveIcon/>
-                                        </IconButton>                                                                               
-                                        <IconButton size="small" onClick={() => {
-                                            handleOpenDeleteDialog(testSample.id || null)
-                                        }}>
-                                            <DeleteIcon/>
-                                        </IconButton>
-                                    </>
-                                )}                      
+                                <ButtonGroup size="small">
+                                    <IconButton size="small" onClick={() => handleOpenSettings(index, testSample)} disableRipple>
+                                        {selectedRow === null && (
+                                            <SettingsIcon/>
+                                        )}
+                                    </IconButton>    
+                                    {selectedRow != null && (
+                                        <>  
+                                            <IconButton size="small" onClick={handleCloseSettings}>
+                                                <CancelIcon/>
+                                            </IconButton>
+                                            <IconButton size="small" onClick={() => {
+                                                handleUpdateItem(testSample)
+                                            }}>
+                                                <SaveIcon/>
+                                            </IconButton>                                                                               
+                                            <IconButton size="small" onClick={() => {
+                                                handleOpenDeleteDialog(testSample.id || null)
+                                            }}>
+                                                <DeleteIcon/>
+                                            </IconButton>
+                                        </>
+                                    )}                      
+                                </ButtonGroup>
                             </TableCell>
                         </TableRow>
                     ))}

@@ -87,7 +87,8 @@ export const SignOutPage: React.FC = () => {
                                                 Serial Number: ${testSample.serialNumber} | 
                                                 Model: ${testSample.model} | 
                                                 Project Association: ${testSample.projectAssociation} | 
-                                                Product Equivalence: ${testSample.productEquivalence} 
+                                                Product Equivalence: ${testSample.productEquivalence} |
+                                                Misc: ${testSample.misc} 
                                                 |`
                                             }
                                         />
@@ -107,7 +108,8 @@ export const SignOutPage: React.FC = () => {
                                             secondary={
                                                 `| 
                                                 Quantity: ${testFixture.quantity} | 
-                                                Project Association: ${testFixture.projectAssociation} 
+                                                Project Association: ${testFixture.projectAssociation} |
+                                                Misc: ${testFixture.misc} 
                                                 |`
                                             }
                                         />

@@ -74,6 +74,64 @@ async fn add_test_fixture<R: Runtime>(app_handle: AppHandle<R>, pool_state: Stat
     return Ok(query.last_insert_rowid());
 }
 
+#[command]
+async fn update_test_sample_by_id<R: Runtime>(app_handle: AppHandle<R>, pool_state: State<'_, SqlitePoolConnection>, item: TestSample) -> Result<u64, SerializedError> {
+    let pool = pool_state.connection.lock().unwrap().clone().unwrap();
+    let mut transaction: Transaction<Sqlite> = pool.begin().await?;
+    let query = sqlx::query(
+        "
+        UPDATE TestSamples
+        SET Name = ?,
+            Quantity = ?,
+            Model = ?,
+            SerialNumber = ?,
+            ProjectAssociation = ?,
+            ProductionEquivalence = ?,
+            Misc = ?
+        WHERE TestSampleID = ?; 
+        "
+    )
+        .bind(item.name)
+        .bind(item.quantity)
+        .bind(item.model)
+        .bind(item.serial_number)
+        .bind(item.project_association)
+        .bind(item.product_equivalence)
+        .bind(item.misc)
+        .bind(item.id)
+        .execute(&mut *transaction)
+        .await?;
+    transaction.commit().await?;
+    app_handle.emit_all("database-update", "").expect("Failed to emit event");
+    return Ok(query.rows_affected());
+}
+
+#[command]
+async fn update_test_fixture_by_id<R: Runtime>(app_handle: AppHandle<R>, pool_state: State<'_, SqlitePoolConnection>, item: TestFixture) -> Result<u64, SerializedError> {
+    let pool = pool_state.connection.lock().unwrap().clone().unwrap();
+    let mut transaction: Transaction<Sqlite> = pool.begin().await?;
+    let query = sqlx::query(
+        "
+        UPDATE TestFixtures
+        SET Name = ?,
+            Quantity = ?,
+            ProjectAssociation = ?,
+            Misc = ?
+        WHERE TestFixtureID = ?; 
+        "
+    )
+        .bind(item.name)
+        .bind(item.quantity)
+        .bind(item.project_association)
+        .bind(item.misc)
+        .bind(item.id)
+        .execute(&mut *transaction)
+        .await?;
+    transaction.commit().await?;
+    app_handle.emit_all("database-update", "").expect("Failed to emit event");
+    return Ok(query.rows_affected());
+}
+
 // TODO 
 // DO NOT USE SELECT * 
 // THIS IS TEMP WILL TO FIX LATER
@@ -99,7 +157,6 @@ async fn get_all_test_samples(pool_state: State<'_, SqlitePoolConnection>) -> Re
             misc: row.get(7),
         }
     }).collect();
-
     return Ok(test_samples);
 }
 
@@ -345,13 +402,15 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
         .invoke_handler(generate_handler![
             add_test_fixture,
             add_test_sample,
+            update_test_sample_by_id,
+            update_test_fixture_by_id,
             get_all_test_samples,
             get_all_test_fixtures,
+            get_all_sign_out_logs,
             delete_sample_by_id,
             delete_fixture_by_id,
             sign_out_sample_by_id,
             sign_out_fixture_by_id,
-            get_all_sign_out_logs,
             return_sample_by_id,
             return_fixture_by_id,
         ])

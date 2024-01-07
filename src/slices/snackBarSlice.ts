@@ -17,9 +17,9 @@ const snackBarSlice = createSlice({
         hideSnackBar: (state) => {
             state.open = false;
             state.message = '';
-        }
-    }
-})
+        },
+    },
+});
 
 export const {
     showSnackBar,

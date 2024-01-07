@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import { TestSample } from "../../../types";
-import { useAppDispatch, useGetAllTestSamples } from "../../../hooks";
+import { useAppDispatch, useAppSelector, useGetAllTestSamples } from "../../../hooks";
 import { invoke } from "@tauri-apps/api/tauri";
 import { AppDispatch } from "../../../store";
 import { showSnackBar } from "../../../slices/snackBarSlice";
@@ -30,6 +30,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 
 export const TestSampleTable: React.FC = () => {
     const dispatch:AppDispatch = useAppDispatch();
+    const editStatus = useAppSelector((state) => state.appSettings.editMode);
 
     const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
     const [selectedTestSample, setSelectedTestSample] = useState<number | null>(null);
@@ -157,11 +158,13 @@ export const TestSampleTable: React.FC = () => {
                         <TableCell align="right">Project Association</TableCell>
                         <TableCell align="right">Production Equivalence</TableCell>
                         <TableCell align="right">Misc</TableCell>
-                        <TableCell align="center">
-                            <IconButton disabled={true} size="small">
-                                <SettingsIcon/>
-                            </IconButton>
-                        </TableCell>
+                        {editStatus && (
+                            <TableCell align="center">
+                                <IconButton disabled={true} size="small">
+                                    <SettingsIcon/>
+                                </IconButton>
+                            </TableCell>
+                        )}
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -256,32 +259,34 @@ export const TestSampleTable: React.FC = () => {
                                     testSample.misc
                                 )}                                  
                             </TableCell>    
-                            <TableCell align="center">
-                                <ButtonGroup size="small">
-                                    <IconButton size="small" onClick={() => handleOpenSettings(index, testSample)} disableRipple>
-                                        {selectedRow === null && (
-                                            <SettingsIcon/>
-                                        )}
-                                    </IconButton>    
-                                    {selectedRow != null && (
-                                        <>  
-                                            <IconButton size="small" onClick={handleCloseSettings}>
-                                                <CancelIcon/>
-                                            </IconButton>
-                                            <IconButton size="small" onClick={() => {
-                                                handleUpdateItem(testSample)
-                                            }}>
-                                                <SaveIcon/>
-                                            </IconButton>                                                                               
-                                            <IconButton size="small" onClick={() => {
-                                                handleOpenDeleteDialog(testSample.id || null)
-                                            }}>
-                                                <DeleteIcon/>
-                                            </IconButton>
-                                        </>
-                                    )}                      
-                                </ButtonGroup>
-                            </TableCell>
+                            {editStatus && (
+                                <TableCell align="center">
+                                    <ButtonGroup size="small">
+                                        <IconButton size="small" onClick={() => handleOpenSettings(index, testSample)} disableRipple>
+                                            {selectedRow === null && (
+                                                <SettingsIcon/>
+                                            )}
+                                        </IconButton>    
+                                        {selectedRow != null && (
+                                            <>  
+                                                <IconButton size="small" onClick={handleCloseSettings}>
+                                                    <CancelIcon/>
+                                                </IconButton>
+                                                <IconButton size="small" onClick={() => {
+                                                    handleUpdateItem(testSample)
+                                                }}>
+                                                    <SaveIcon/>
+                                                </IconButton>                                                                               
+                                                <IconButton size="small" onClick={() => {
+                                                    handleOpenDeleteDialog(testSample.id || null)
+                                                }}>
+                                                    <DeleteIcon/>
+                                                </IconButton>
+                                            </>
+                                        )}                      
+                                    </ButtonGroup>
+                                </TableCell>
+                            )}
                         </TableRow>
                     ))}
                 </TableBody>

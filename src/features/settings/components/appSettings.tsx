@@ -1,15 +1,26 @@
 import React, { useState, useCallback } from "react";
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, FormControlLabel, FormGroup, Switch } from "@mui/material";
 import { AppDispatch } from "../../../store";
-import { registerShortCut, useAppDispatch } from "../../../hooks";
+import { registerShortCut, useAppDispatch, useAppSelector } from "../../../hooks";
 
 import debounce from 'lodash.debounce';
+import { disableEditMode, enableEditMode } from "../../../slices/appSettingsSlice";
 
 export const AppSettings: React.FC = () => {
     const dispatch: AppDispatch = useAppDispatch();
+    const editStatus = useAppSelector((state) => state.appSettings.editMode);
+
     const settingsShortCut:string = "Alt+Enter";
     
     const [openAppSettings, setOpenAppSettings] = useState<boolean>(false);
+
+    const handleEditModeChange = (checked:boolean) => {
+        if (checked) {
+            dispatch(enableEditMode());
+        } else {
+            dispatch(disableEditMode());
+        }
+    }
 
     const handleCloseAppSettingsDialog = ():void => {
         console.log("App Settings Closed")
@@ -35,6 +46,14 @@ export const AppSettings: React.FC = () => {
                 <Button variant="contained" onClick={handleCloseAppSettingsDialog}>Close</Button>
             </DialogActions>
             <DialogContent>
+                <FormGroup>
+                    <FormControlLabel
+                        control={<Switch/>}
+                        checked={editStatus}
+                        onChange={(_, checked) => handleEditModeChange(checked)}
+                        label="Edit Mode"
+                    />
+                </FormGroup>
             </DialogContent>
         </Dialog>
     );

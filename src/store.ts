@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import snackBarSlice from "./slices/snackBarSlice";
+import appSettingsSlice from "./slices/appSettingsSlice";
 
 export const store = configureStore({
     reducer: {
         snackBar: snackBarSlice,
+        appSettings: appSettingsSlice,
     },
 });
 

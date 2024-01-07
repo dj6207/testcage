@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import { TestFixture } from "../../../types";
-import { useAppDispatch, useGetAllTestFixtures } from "../../../hooks";
+import { useAppDispatch, useAppSelector, useGetAllTestFixtures } from "../../../hooks";
 import { invoke } from "@tauri-apps/api/tauri";
 import { showSnackBar } from "../../../slices/snackBarSlice";
 
@@ -29,6 +29,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 
 export const TestFixtureTable: React.FC = () => {
     const dispatch = useAppDispatch();
+    const editStatus = useAppSelector((state) => state.appSettings.editMode);
 
     const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
     const [selectedTestFixture, setSelectedTestFixture] = useState<number | null>(null);
@@ -141,11 +142,13 @@ export const TestFixtureTable: React.FC = () => {
                         <TableCell align="right">Quantity</TableCell>
                         <TableCell align="right">Project Association</TableCell>
                         <TableCell align="right">Misc</TableCell>
-                        <TableCell align="center">
-                            <IconButton disabled={true} size="small">
-                                <DeleteIcon/>
-                            </IconButton>  
-                        </TableCell>                        
+                        {editStatus && (
+                            <TableCell align="center">
+                                <IconButton disabled={true} size="small">
+                                    <DeleteIcon/>
+                                </IconButton>  
+                            </TableCell>                        
+                        )}
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -204,32 +207,34 @@ export const TestFixtureTable: React.FC = () => {
                                     testFixture.misc
                                 )}  
                             </TableCell>  
-                            <TableCell align="center">
-                                <ButtonGroup size="small">
-                                    <IconButton size="small" onClick={() => handleOpenSettings(index, testFixture)} disableRipple>
-                                        {selectedRow === null && (
-                                            <SettingsIcon/>
-                                        )}
-                                    </IconButton>    
-                                    {selectedRow != null && (
-                                        <>  
-                                            <IconButton size="small" onClick={handleCloseSettings}>
-                                                <CancelIcon/>
-                                            </IconButton>
-                                            <IconButton size="small" onClick={() => {
-                                                handleUpdateItem(testFixture)
-                                            }}>
-                                                <SaveIcon/>
-                                            </IconButton>                                                                               
-                                            <IconButton size="small" onClick={() => {
-                                                handleOpenDeleteDialog(testFixture.id || null)
-                                            }}>
-                                                <DeleteIcon/>
-                                            </IconButton>
-                                        </>
-                                    )}                      
-                                </ButtonGroup>                            
-                            </TableCell>                                                             
+                            {editStatus && (
+                                <TableCell align="center">
+                                    <ButtonGroup size="small">
+                                        <IconButton size="small" onClick={() => handleOpenSettings(index, testFixture)} disableRipple>
+                                            {selectedRow === null && (
+                                                <SettingsIcon/>
+                                            )}
+                                        </IconButton>    
+                                        {selectedRow != null && (
+                                            <>  
+                                                <IconButton size="small" onClick={handleCloseSettings}>
+                                                    <CancelIcon/>
+                                                </IconButton>
+                                                <IconButton size="small" onClick={() => {
+                                                    handleUpdateItem(testFixture)
+                                                }}>
+                                                    <SaveIcon/>
+                                                </IconButton>                                                                               
+                                                <IconButton size="small" onClick={() => {
+                                                    handleOpenDeleteDialog(testFixture.id || null)
+                                                }}>
+                                                    <DeleteIcon/>
+                                                </IconButton>
+                                            </>
+                                        )}                      
+                                    </ButtonGroup>                            
+                                </TableCell>                                                             
+                            )}
                         </TableRow>
                     ))}
                 </TableBody>

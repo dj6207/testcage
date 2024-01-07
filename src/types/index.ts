@@ -39,6 +39,10 @@ export type SnackBarState = {
     message: string;
 }
 
+export type AppSettingsState = {
+    editMode: boolean;
+}
+
 export type RouteItem = {
     path: string;
     label: string;

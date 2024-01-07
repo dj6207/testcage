@@ -1,12 +1,21 @@
 import { useEffect, useState } from "react"
-import { SignOutLog, TestFixture, TestSample } from "../types";
+import { ShortCutHandler, SignOutLog, TestFixture, TestSample } from "../types";
 import { invoke } from "@tauri-apps/api/tauri";
 import { listen } from "@tauri-apps/api/event";
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../store';
+import { register, unregister } from "@tauri-apps/api/globalShortcut";
 
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+
+export const registerShortCut = (shortCut:string, shortCutHandler:ShortCutHandler):void => {
+    useEffect(() => {
+        register(shortCut, shortCutHandler)
+            .then(() => console.log(`Registered Shortcut: ${shortCut}`))
+            .catch(() => {});
+    })
+}
 
 export const useGetAllTestSamples = ():TestSample[] => {
     const [testSamples, setTestSamples] = useState<TestSample[]>([]);

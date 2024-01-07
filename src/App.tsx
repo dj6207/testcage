@@ -4,11 +4,10 @@ import { RouteItem } from './types'
 import { ReturnPage, SignOutPage, TablePage } from './pages'
 
 function App() {
-
   const routes:RouteItem[] = [
-    { path: 'table', label: 'Table'},
-    { path: 'sign-out', label: 'Sign Out'},
-    { path: 'return', label: 'Return'},
+    { path: 'table', label: 'Test Items Database'},
+    { path: 'sign-out', label: 'Sign Out Form'},
+    { path: 'return', label: 'Return Form'},
   ]
   return (
     <BrowserRouter>

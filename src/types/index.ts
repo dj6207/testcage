@@ -31,6 +31,9 @@ export type SignOutLog = {
     dateReturned?: string;
 }
 
+export type ShortCutHandler = 
+    () => void;
+
 export type SnackBarState = {
     open: boolean;
     message: string;

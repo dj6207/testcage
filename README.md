@@ -77,11 +77,19 @@ The backend is built using Rust. The crates [sqlx](https://github.com/launchbadg
     testcage.db // Sqlite database
 ```
 
-# Issues
-No know issues so far
+# Features
+- Test Samples/Fixtures Table view
+- Sign Out Logs Table view
+- Adding Test Sample/Fixture 
+- Signing out Test Fixture/Samples
+- Returning Test Fixture/Samples
+- Edit Mode (Updating and Deletting Test Samples/Fixtures) (To access the app settings menu press `alt+enter` can be modified in `/src/features/settings/components/appSettings.tsx`)
 
 # Future Improvements
 - Import database feature
 - Export database feature
 - Paging for the tables in lists
+
+# Issues
+No know issues so far
 

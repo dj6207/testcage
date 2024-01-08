@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AddItemForm, SignOutLogTable, TestFixtureTable, TestSampleTable } from "../features";
-import { Button, ButtonGroup, Dialog, DialogActions, DialogContent, DialogContentText, Paper, Toolbar } from "@mui/material";
+import { Button, ButtonGroup, Dialog, DialogActions, DialogContent, DialogContentText, Paper } from "@mui/material";
 import { TableType } from "../enums";
 
 export const TablePage: React.FC = () => {

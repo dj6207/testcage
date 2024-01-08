@@ -1,5 +1,3 @@
-import { TestCageItem } from "../enums";
-
 export type TestSample = {
     id?: number;
     name: string;

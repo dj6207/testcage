@@ -1,4 +1,4 @@
-import { Box, Container, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField, FormLabel, Button } from "@mui/material";
+import { Box, Container, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField, Button } from "@mui/material";
 import React, { useState } from "react";
 import { TestCageItem } from "../../../enums";
 import { TestFixture, TestSample } from "../../../types";

@@ -19,7 +19,7 @@ use sqlx::{
     Pool, 
     Sqlite, 
     Transaction,
-    Error as SqlxError, Row, Column, query
+    Error as SqlxError, Row, Column
 };
 
 use std::{str::FromStr, path::PathBuf};

@@ -19,10 +19,11 @@ use sqlx::{
     Pool, 
     Sqlite, 
     Transaction,
-    Error as SqlxError, Row
+    Error as SqlxError, Row, Column
 };
 
 use std::str::FromStr;
+use csv::Writer;
 
 use crate::types::{
     enums::SerializedError, 
@@ -35,62 +36,21 @@ use crate::types::{
 const DATABASE_URL:&str = "sqlite:testcage.db";
 
 // TODO
-async fn import_csv_to_database(pool_state: State<'_, SqlitePoolConnection>) -> Result<(), ()>{
+#[command]
+async fn export_database_to_csv(pool_state: State<'_, SqlitePoolConnection>) -> Result<(), SerializedError>{
     let pool = pool_state.connection.lock().unwrap().clone().unwrap();
+    let user_profile = dirs::home_dir().expect("Failed to get home directory");
+    let downloads_folder = user_profile.join("Downloads").join("output.csv");
+    let mut csv_writer = Writer::from_path(downloads_folder)?;
 
     return Ok(());
 }
 
 // TODO
-async fn export_database_to_csv(pool_state: State<'_, SqlitePoolConnection>) -> Result<(), ()>{
+async fn import_csv_to_database(pool_state: State<'_, SqlitePoolConnection>) -> Result<(), ()>{
     let pool = pool_state.connection.lock().unwrap().clone().unwrap();
 
     return Ok(());
-}
-
-// TODO untested
-#[command]
-async fn get_total_count_test_samples(pool_state: State<'_, SqlitePoolConnection>) -> Result<i64, SerializedError>{
-    let pool = pool_state.connection.lock().unwrap().clone().unwrap();
-    let query = sqlx::query(
-        "
-            SELECT COUNT(*) as count FROM TestSamples
-        "
-    )
-        .fetch_one(&pool)
-        .await?;
-    let count = query.try_get::<i64, _>("count")?;
-    return Ok(count);
-}
-
-// TODO untested
-#[command]
-async fn get_total_count_test_fixtures(pool_state: State<'_, SqlitePoolConnection>) -> Result<i64, SerializedError>{
-    let pool = pool_state.connection.lock().unwrap().clone().unwrap();
-    let query = sqlx::query(
-        "
-            SELECT COUNT(*) as count FROM TestFixtures
-        "
-    )
-        .fetch_one(&pool)
-        .await?;
-    let count = query.try_get::<i64, _>("count")?;
-    return Ok(count);
-}
-
-// TODO untested
-#[command]
-async fn get_total_count_sign_out_logs(pool_state: State<'_, SqlitePoolConnection>) -> Result<i64, SerializedError>{
-    let pool = pool_state.connection.lock().unwrap().clone().unwrap();
-    let query = sqlx::query(
-        "
-            SELECT COUNT(*) as count FROM SignOutLogs
-        "
-    )
-        .fetch_one(&pool)
-        .await?;
-    let count = query.try_get::<i64, _>("count")?;
-    return Ok(count);
 }
 
 #[command]
@@ -191,9 +151,6 @@ async fn update_test_fixture_by_id<R: Runtime>(app_handle: AppHandle<R>, pool_st
     return Ok(query.rows_affected());
 }
 
-// TODO 
-// DO NOT USE SELECT * 
-// THIS IS TEMP WILL TO FIX LATER
 #[command]
 async fn get_all_test_samples(pool_state: State<'_, SqlitePoolConnection>) -> Result<Vec<TestSample>, SerializedError> {
     let pool = pool_state.connection.lock().unwrap().clone().unwrap();
@@ -472,9 +429,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             sign_out_fixture_by_id,
             return_sample_by_id,
             return_fixture_by_id,
-            get_total_count_test_samples,
-            get_total_count_test_fixtures,
-            get_total_count_sign_out_logs,
+            export_database_to_csv,
         ])
         .build()
 }

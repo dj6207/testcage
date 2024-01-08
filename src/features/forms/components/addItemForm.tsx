@@ -45,26 +45,6 @@ export const AddItemForm: React.FC = () => {
     }
 
     const addTestFixture = (item:TestFixture):void => {
-        // Make sure the name of the arg parssed in is the same as the name of the parameter called in the backend
-        // for example the parameter "sample" in this function should be the same as the "sample" in the rust function add_test_sample
-        // const addTestSample = (sample:TestSample):void => {
-        //     ...
-        // }
-        // async fn add_test_sample<R: Runtime>(app_handle: AppHandle<R>, pool_state: State<'_, SqlitePoolConnection>, sample: TestSample) -> Result<i64, SerializedError>{
-        //     ...
-        // }
-        // arg sample name === parameter sample name
-
-        // const addTestSample = (testSample:TestSample):void => {
-        //     ...
-        // }
-        // async fn add_test_sample<R: Runtime>(app_handle: AppHandle<R>, pool_state: State<'_, SqlitePoolConnection>, sample: TestSample) -> Result<i64, SerializedError>{
-        //     ...
-        // }
-        // This wont work cause testSample != sample and will cause an error
-
-        // Or just use the format { item: fixture } left is rust argument name and right is typescript parameter name
-        // Or go in to /src-tauri/src/types/struct and use #[serde(rename = "testSampleId")] 
         invoke<number>("plugin:sqlite_connector|add_test_fixture", { item: item })
             .then((res) => console.log(res))
             .catch((err) => {

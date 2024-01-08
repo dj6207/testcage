@@ -19,10 +19,10 @@ use sqlx::{
     Pool, 
     Sqlite, 
     Transaction,
-    Error as SqlxError, Row, Column
+    Error as SqlxError, Row, Column, query
 };
 
-use std::str::FromStr;
+use std::{str::FromStr, path::PathBuf};
 use csv::Writer;
 
 use crate::types::{
@@ -35,14 +35,101 @@ use crate::types::{
 
 const DATABASE_URL:&str = "sqlite:testcage.db";
 
-// TODO
+// TODO Not functional in its current state need to be updated later
 #[command]
 async fn export_database_to_csv(pool_state: State<'_, SqlitePoolConnection>) -> Result<(), SerializedError>{
     let pool = pool_state.connection.lock().unwrap().clone().unwrap();
-    let user_profile = dirs::home_dir().expect("Failed to get home directory");
-    let downloads_folder = user_profile.join("Downloads").join("output.csv");
-    let mut csv_writer = Writer::from_path(downloads_folder)?;
+    let user_profile:PathBuf = dirs::home_dir().expect("Failed to get home directory");
+    let downloads_folder:PathBuf = user_profile.join("Downloads");
 
+    let mut test_samples_writer = Writer::from_path(downloads_folder.join("TestSamples_Table.csv"))?;
+    let test_samples_table_data = sqlx::query(
+        "
+        SELECT * FROM TestSamples
+        "
+    )
+        .fetch_all(&pool)
+        .await?;
+    test_samples_writer.write_record(&[
+        "TestSampleID".to_string(),
+        "Name".to_string(),
+        "Quantity".to_string(),
+        "Model".to_string(),
+        "SerialNumber".to_string(),
+        "ProjectAssociation".to_string(),
+        "ProductionEquivalence".to_string(),
+        "Misc".to_string(),
+    ])?;
+    for rows in test_samples_table_data {
+        test_samples_writer.write_record(&[
+            // Test Sample Id will never be empty ????
+            rows.try_get::<i64, _>("TestSampleID").unwrap().to_string(),
+            rows.try_get::<String, _>("Name").unwrap_or("".to_string()),
+            rows.try_get::<i64, _>("Quantity").unwrap().to_string(),
+            rows.try_get::<String, _>("Model").unwrap_or("".to_string()),
+            rows.try_get::<String, _>("SerialNumber").unwrap_or("".to_string()),
+            rows.try_get::<String, _>("ProjectAssociation").unwrap_or("".to_string()),
+            rows.try_get::<String, _>("ProductionEquivalence").unwrap_or("".to_string()),
+            rows.try_get::<String, _>("Misc").unwrap_or("".to_string()),
+        ])?;
+        test_samples_writer.flush()?;
+    }
+
+    let mut test_fixtures_writer = Writer::from_path(downloads_folder.join("TestFixtures_Table.csv"))?;
+    let test_fixtures_table_data = sqlx::query(
+        "
+        SELECT * FROM TestFixtures
+        "
+    )
+        .fetch_all(&pool)
+        .await?;
+    test_fixtures_writer.write_record(&[
+        "TestFixtureID".to_string(),
+        "Name".to_string(),
+        "Quantity".to_string(),
+        "ProjectAssociation".to_string(),
+        "Misc".to_string(),
+    ])?;
+    for rows in test_fixtures_table_data {
+        test_fixtures_writer.write_record(&[
+            rows.try_get::<i64, _>("TestFixtureID").unwrap().to_string(),
+            rows.try_get::<String, _>("Name").unwrap_or("".to_string()),
+            rows.try_get::<i64, _>("Quantity").unwrap().to_string(),
+            rows.try_get::<String, _>("ProjectAssociation").unwrap_or("".to_string()),
+            rows.try_get::<String, _>("Misc").unwrap_or("".to_string()),
+        ])?;
+        test_fixtures_writer.flush()?;
+    }
+
+    let mut sign_out_logs_writer = Writer::from_path(downloads_folder.join("SignOutLogs_Table.csv"))?;
+    let sign_out_logs_table_data = sqlx::query(
+        "
+        SELECT * FROM SignOutLogs
+        "
+    )
+        .fetch_all(&pool)
+        .await?;
+    sign_out_logs_writer.write_record(&[
+        "SignOutLogID".to_string(),
+        "TestSampleID".to_string(),
+        "TestFixtureID".to_string(),
+        "SignedOutQuantity".to_string(),
+        "SignedOutBy".to_string(),
+        "DateSignedOut".to_string(),
+        "DateReturned".to_string(),
+    ])?;
+    for rows in sign_out_logs_table_data {
+        sign_out_logs_writer.write_record(&[
+            rows.try_get::<i64, _>("SignOutLogID").unwrap().to_string(),
+            rows.try_get::<i64, _>("TestSampleID").unwrap().to_string(),
+            rows.try_get::<i64, _>("TestFixtureID").unwrap().to_string(),
+            rows.try_get::<i64, _>("SignedOutQuantity").unwrap().to_string(),
+            rows.try_get::<String, _>("SignedOutBy").unwrap_or("".to_string()),
+            rows.try_get::<String, _>("DateSignedOut").unwrap_or("".to_string()),
+            rows.try_get::<String, _>("DateReturned").unwrap_or("".to_string()),
+        ])?;
+        sign_out_logs_writer.flush()?;
+    }
     return Ok(());
 }
 

@@ -95,7 +95,6 @@ Useful features built into the Tauri framework.
 ## Managing Rust State
 Tauri allows for state management in the rust code. This can be useful if you want to access a state in multiple functions. For example, in this application the data base fool state is managed since you need pool to perform database operations. An example of how to manage a state is shown below. In this code snippet the database is initialized, and it will return a `Result<Pool<Sqlite>, SqlxError>`. If the database is initialized successfully we create a new State using `app_handle.state();` and then we set the value of the state.
 ```Rust
-
     #[derive(Debug)]
     pub struct SqlitePoolConnection{
       pub connection: Mutex<Option<Pool<Sqlite>>>
@@ -122,7 +121,6 @@ Tauri allows for state management in the rust code. This can be useful if you wa
 ## Global Application Sortcuts
 Tauri allows for global shortcuts. In this application the shortcut `alt+enter` is used to open up the app settings dialog that lets the user turn on edit mode, export database, and import database. To change this short cut you can do to `/src/features/settings/components/appSettings.tsx`. To create a new shortcut we use the hook `registerShortCut` found in `/src/hooks/index/ts`. This hook takes in the shortcut as a `string` and a function that handles the shortcut when the shortcut is pressed. An example of registering a new shortcut is shown below.
 ```Typescript
-
     export const registerShortCut = (shortCut:string, shortCutHandler:ShortCutHandler):void => {
         useEffect(() => {
             register(shortCut, shortCutHandler)

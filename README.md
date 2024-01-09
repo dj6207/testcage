@@ -118,7 +118,7 @@ Tauri allows for state management in the rust code. This can be useful if you wa
     })
 ```
 
-## Global Application Sortcuts
+## Global Application Shortcuts
 Tauri allows for global shortcuts. In this application the shortcut `alt+enter` is used to open up the app settings dialog that lets the user turn on edit mode, export database, and import database. To change this short cut you can do to `/src/features/settings/components/appSettings.tsx`. To create a new shortcut we use the hook `registerShortCut` found in `/src/hooks/index/ts`. This hook takes in the shortcut as a `string` and a function that handles the shortcut when the shortcut is pressed. An example of registering a new shortcut is shown below.
 ```Typescript
     export const registerShortCut = (shortCut:string, shortCutHandler:ShortCutHandler):void => {

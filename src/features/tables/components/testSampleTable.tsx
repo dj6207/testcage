@@ -267,7 +267,7 @@ export const TestSampleTable: React.FC = () => {
                                                 <SettingsIcon/>
                                             )}
                                         </IconButton>    
-                                        {selectedRow != null && (
+                                        {selectedRow === index && (
                                             <>  
                                                 <IconButton size="small" onClick={handleCloseSettings}>
                                                     <CancelIcon/>

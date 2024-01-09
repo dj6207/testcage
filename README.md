@@ -77,13 +77,76 @@ The backend is built using Rust. The crates [sqlx](https://github.com/launchbadg
     testcage.db // Sqlite database
 ```
 
+# Tauri Features
+Useful features built into the Tauri framework.
+
+## Calling Rusting functions from React
+[Documentation](https://tauri.app/v1/guides/features/command/) for calling rust from frontend. To call a rust function from react you must create a `command` in the backend by annotating the function with the `#[command]` tag. Functions annotated with this tag must return a `Result` type. Any custom struct in the parameter of the function and result of the function must have the annotation `#[derive(Deserialize, Serialize)]`. The Error within the result type must contain an Error that can be serialized. Some crates can contain errors that cannot be serialized so you must serialize them yourself. You can find out how to custom serializable errors in [error-handling](https://tauri.app/v1/guides/features/command/). If you want to access the database in this function you have to include the parameter `(pool_state: State<'_, SqlitePoolConnection>)` in the function. If you want to access the app handle add the generic `<R: Runtime>` to the function and include the parameter `(app_handle: AppHandle<R>)`. After creating a new command add the name of the function inside `generate_handler![]` list that is typically found at the very bottom of the file. Use Tauri’s built in function `invoke<T>` (the T is the expected type of the result returned) to call rust functions by passing in the name of the command and pass in the necessary parameter. Use `.then` to handle the response from the function call and `.catch` to handle any errors. For example, in the code snippet below we can see that the rust function being called is `add_test_sample` and this function is in `plugin:sqlite_connector` (this is changed if the rust function is not in `sqlite_connector.rs`) The argument passed in is item. In this case the result from the `add_test_sample` call is just logged but if you want to use the value, you can use `useState<T>()` and set the state to the value and return the value. The error is logged, and a snack bar notification is displayed in the UI to let the user know that an error occurred.
+```Typescript
+    const addTestSample = (item:TestSample):void => {
+        invoke<number>("plugin:sqlite_connector|add_test_sample", { item: item })
+            .then((res) => console.log(res))
+            .catch((err) => {
+                console.log(err);
+                dispatch(showSnackBar("Test Sample Already Exist"));
+            });
+    }
+```
+## Managing Rust State
+Tauri allows for state management in the rust code. This can be useful if you want to access a state in multiple functions. For example, in this application the data base fool state is managed since you need pool to perform database operations. An example of how to manage a state is shown below. In this code snippet the database is initialized, and it will return a `Result<Pool<Sqlite>, SqlxError>`. If the database is initialized successfully we create a new State using `app_handle.state();` and then we set the value of the state.
+```Rust
+
+    #[derive(Debug)]
+    pub struct SqlitePoolConnection{
+      pub connection: Mutex<Option<Pool<Sqlite>>>
+    }
+
+    ...
+
+    .setup(|app_handler| {
+      let app_handle = app_handler.app_handle();
+      tauri::async_runtime::spawn(async move {
+        match initialize_sqlite_database().await {
+          Ok(pool) => {
+            log::info!("Database initalized");
+            let pool_state: State<'_, SqlitePoolConnection> = app_handle.state();
+            *pool_state.connection.lock().unwrap() = Some(pool.clone());            
+          }
+          Err(err) => {log::error!("Error Initializing Database: {}", err);}
+        }
+      });
+      Ok(())
+    })
+```
+
+## Global Application Sortcuts
+Tauri allows for global shortcuts. In this application the shortcut `alt+enter` is used to open up the app settings dialog that lets the user turn on edit mode, export database, and import database. To change this short cut you can do to `/src/features/settings/components/appSettings.tsx`. To create a new shortcut we use the hook `registerShortCut` found in `/src/hooks/index/ts`. This hook takes in the shortcut as a `string` and a function that handles the shortcut when the shortcut is pressed. An example of registering a new shortcut is shown below.
+```Typescript
+
+    export const registerShortCut = (shortCut:string, shortCutHandler:ShortCutHandler):void => {
+        useEffect(() => {
+            register(shortCut, shortCutHandler)
+                .then(() => console.log(`Registered Shortcut: ${shortCut}`))
+                .catch(() => {});
+        })
+    }
+
+    ...
+
+    const settingsShortCut:string = "Alt+Enter";
+    const toggleAppSettings = useCallback(debounce(() => {
+        setOpenAppSettings(true);
+    }, 500), []);
+    registerShortCut(settingsShortCut, toggleAppSettings);
+```
+
 # Features
 - Test Samples/Fixtures Table view
 - Sign Out Logs Table view
 - Adding Test Sample/Fixture 
 - Signing out Test Fixture/Samples
 - Returning Test Fixture/Samples
-- Edit Mode (Updating and Deleting Test Samples/Fixtures) (To access the app settings menu press `alt+enter` can be modified in `/src/features/settings/components/appSettings.tsx`)
+- Edit Mode (Updating and Deleting Test Samples/Fixtures)
 
 # Future Improvements
 - Import database feature
